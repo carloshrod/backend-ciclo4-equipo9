@@ -2,7 +2,7 @@ const {Router}= require('express');
 const predioRutas = Router();
 const {predioModel} = require('../modelos/predioModel');
 
-predioRutas.get("/listas", function(req, res) {
+predioRutas.get("/listar", function(req, res) {
     // Busca el producto en la BD
     predioModel.find({ }, function (error, pred) {
         // Si hubo error
@@ -21,8 +21,10 @@ predioRutas.get("/listas", function(req, res) {
 
 predioRutas.post("/guardar", function (req, res) {
     const data = req.body;
+    console.log(data)
     const predio = new predioModel(data);
     predio.save(function (error) {
+        console.log(error)
         if (error) {
             res.send({ estado: "error", msg: "ERROR: Usuario NO guardado" });
             return false;

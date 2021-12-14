@@ -1,40 +1,48 @@
 const users = [
     {
         "id": 1,
-        "nombre": "Carlos Alberto",
+        "nombre": "Carlos",
+        "apellidos": "Hernández",
         "nro_doc": 1045789604,
         "email": "carlos@gmail.com",
         "telefono": 3204879630,
-        "apellidos": "Hernández",
         "direccion": "Calle 879"
     },
     {
         "id": 2,
         "nombre": "Juan",
+        "apellidos": "Vargas",
         "nro_doc": 1045668604,
         "email": "juan@gmail.com",
-        "telefono": 3157893201
+        "telefono": 3157893201,
+        "direccion": "Calle 564"
     },
     {
         "id": 3,
         "nombre": "Jhon",
+        "apellidos": "Quejada",
         "nro_doc": 10436704,
         "email": "Jhon@gmail.com",
-        "telefono": 3014528963
+        "telefono": 3014528963,
+        "direccion": "Calle 098"
     },
     {
         "id": 4,
         "nombre": "Anderson",
+        "apellidos": "Pérez",
         "nro_doc": 769002948,
         "email": "anderson@gmail.com",
-        "telefono": 3114572103
+        "telefono": 3114572103,
+        "direccion": "Calle 324"
     },
     {
         "id": 5,
         "nombre": "Jorge",
+        "apellidos": "Jiménez",
         "nro_doc": 82852990,
         "email": "jorge@gmail.com",
-        "telefono": 3027893015
+        "telefono": 3027893015,
+        "direccion": "Calle 346"
     }
 ]
 

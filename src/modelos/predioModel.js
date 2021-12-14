@@ -2,25 +2,25 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const predioSchema = new Schema({
-    codigopredio:{
+    codigo:{
         type:"string",
         unique:true,
         required:true
     },
-    propietario:{
+    nom_prop:{
         type:"string",
         required:true
     },
-    numDocumento:{
+    doc_prop:{
         type:"number",
         required:true,
         unique:true
     },
-    areaConstruida:{
+    area_c:{
         type:"number",
         required:true
     },
-    areaTotal:{
+    area_t:{
         type:"number",
         required:true
     },

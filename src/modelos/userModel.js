@@ -2,23 +2,25 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const userSchema = new Schema({
+    id:{
+        type:"number",
+    },
     nombre:{
         type:"string",
         required:true
     },
-    apellido:{
+    apellidos:{
         type:"string",
         required:true
     },
-    correoElectronico:{
-        type:"string",
-        required:true,
-        unique:true
-    },
-    numDocumento:{
+    nro_doc:{
         type:"number",
         required:true,
         unique: true
+    },
+    email:{
+        type:"string",
+        required:true,
     },
     telefono:{
         type:"number",
@@ -30,7 +32,6 @@ const userSchema = new Schema({
     },
     rol:{
         type:"number",
-        required:true
     }
 })
 
