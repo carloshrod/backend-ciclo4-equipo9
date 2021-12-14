@@ -2,6 +2,9 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const predioSchema = new Schema({
+    id:{
+        type:"number",
+    },
     codigo:{
         type:"string",
         unique:true,

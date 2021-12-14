@@ -21,15 +21,13 @@ userRutas.get("/listar", function(req, res) {
 
 userRutas.post("/guardar", function (req, res) {
     const data = req.body;
-    console.log(data)
     const user = new userModel(data);
     user.save(function (error) {
-        console.log(error)
         if (error) {
             res.send({ estado: "error", msg: "ERROR: Usuario NO guardado" });
             return false;
         }
-        res.send({ estado: "ok", msg: "Guardado satisfactoriamente" })
+        res.send({ estado: "ok", msg: "Guardado satisfactoriamente", data: user })
     })
 });
 
