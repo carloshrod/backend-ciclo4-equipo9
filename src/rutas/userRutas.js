@@ -1,10 +1,10 @@
-const {Router}= require('express');
+const { Router } = require('express');
 const userRutas = Router();
-const {userModel} = require('../modelos/userModel');
+const { userModel } = require('../modelos/userModel');
 
-userRutas.get("/listar", function(req, res) {
+userRutas.get("/listar", function (req, res) {
     // Busca el producto en la BD
-    userModel.find({ }, function (error, user) {
+    userModel.find({}, function (error, user) {
         // Si hubo error
         if (error) {
             res.send({ estado: "error", msg: "Producto NO encontrado" })
@@ -31,8 +31,34 @@ userRutas.post("/guardar", function (req, res) {
     })
 });
 
+userRutas.put("/editar", function (req, res) {
+    let data = req.body;
+    const user = new userModel(data);
+    user.updateOne({
+        $set: req.body
+    }, function (error) {
+        if (error) {
+            res.send({ estado: "error", msg: "ERROR: Usuario NO actualizado" });
+            return false;
+        }
+        res.send({ estado: "ok", msg: "Actualizado satisfactoriamente" })
+    })
+});
 
-
-
+userRutas.post("/eliminar", function (req, res) {
+    //Capturar los datos que vienen del cliente
+    const id = req.body.id;
+    //Buscar por nombre de producto en 'BD'
+    let i = 0;
+    for (const u of usuarios) {
+        if (u.id == id) {
+            usuarios.splice(i, 1) //Elimina el producto
+            break;
+        }
+        i++;
+    }
+    //Responder al cliente
+    res.send({ estado: "ok", msg: "Producto Eliminado!" });
+})
 
 exports.userRutas = userRutas;

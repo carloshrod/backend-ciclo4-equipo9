@@ -1,10 +1,10 @@
-const {Router}= require('express');
+const { Router } = require('express');
 const predioRutas = Router();
-const {predioModel} = require('../modelos/predioModel');
+const { predioModel } = require('../modelos/predioModel');
 
-predioRutas.get("/listar", function(req, res) {
+predioRutas.get("/listar", function (req, res) {
     // Busca el producto en la BD
-    predioModel.find({ }, function (error, predio) {
+    predioModel.find({}, function (error, predio) {
         // Si hubo error
         if (error) {
             res.send({ estado: "error", msg: "Predios NO encontrado" })
@@ -31,6 +31,18 @@ predioRutas.post("/guardar", function (req, res) {
     })
 });
 
-
+predioRutas.put("/editar", function (req, res) {
+    const data = req.body;
+    const predio = new predioModel(data);
+    predio.updateOne({
+        $set: req.body
+    }, function (error) {
+        if (error) {
+            res.send({ estado: "error", msg: "ERROR: Usuario NO actualizado" });
+            return false;
+        }
+        res.send({ estado: "ok", msg: "Actualizado satisfactoriamente"})
+    })
+});
 
 exports.predioRutas = predioRutas;
