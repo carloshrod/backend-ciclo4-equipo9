@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const predioSchema = new Schema({
-    id:{
+    nro_registro:{
         type:"number",
     },
     codigo:{
@@ -36,6 +36,7 @@ const predioSchema = new Schema({
         type:"string",
         required:true
     }
+
 })
 
 const predioModel = mongoose.model("predios",predioSchema);

@@ -22,9 +22,11 @@ predioRutas.get("/listar", function (req, res) {
 predioRutas.post("/guardar", function (req, res) {
     const data = req.body;
     const predio = new predioModel(data);
+    console.log(data);
     predio.save(function (error) {
         if (error) {
-            res.send({ estado: "error", msg: "ERROR: Usuario NO guardado" });
+            console.log(res.error);
+            res.send({ estado: "error", msg: "ERROR: Predio NO guardado" });
             return false;
         }
         res.send({ estado: "ok", msg: "Guardado satisfactoriamente", data: predio })
@@ -44,5 +46,17 @@ predioRutas.put("/editar", function (req, res) {
         res.send({ estado: "ok", msg: "Actualizado satisfactoriamente"})
     })
 });
+
+predioRutas.delete("/eliminar/:id", function (req, res) {
+    //Capturar los datos que vienen del cliente
+    const i = req.params.id;
+    //Buscar por nombre de producto en 'BD'
+    predioModel.findOneAndDelete({id:i},(error,resp)=>{
+        if(error){
+            res.send({ estado: "error", msg: "ERROR: Predio NO eliminado" })
+        }
+        res.send({ estado: "ok", msg: "Eliminado satisfactoriamente" })
+    })
+})
 
 exports.predioRutas = predioRutas;

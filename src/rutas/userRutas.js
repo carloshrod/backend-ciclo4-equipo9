@@ -45,20 +45,16 @@ userRutas.put("/editar", function (req, res) {
     })
 });
 
-userRutas.post("/eliminar", function (req, res) {
+userRutas.delete("/eliminar/:id", function (req, res) {
     //Capturar los datos que vienen del cliente
-    const id = req.body.id;
+    const i = req.params.id;
     //Buscar por nombre de producto en 'BD'
-    let i = 0;
-    for (const u of usuarios) {
-        if (u.id == id) {
-            usuarios.splice(i, 1) //Elimina el producto
-            break;
+    userModel.findOneAndDelete({id:i},(error,resp)=>{
+        if(error){
+            res.send({ estado: "error", msg: "ERROR: Usuario NO eliminado" })
         }
-        i++;
-    }
-    //Responder al cliente
-    res.send({ estado: "ok", msg: "Producto Eliminado!" });
+        res.send({ estado: "ok", msg: "Eliminado satisfactoriamente" })
+    })
 })
 
 exports.userRutas = userRutas;

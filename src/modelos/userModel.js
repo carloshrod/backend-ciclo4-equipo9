@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const userSchema = new Schema({
-    id:{
+    nro_registro:{
         type:"number",
     },
     nombre:{
@@ -13,12 +13,20 @@ const userSchema = new Schema({
         type:"string",
         required:true
     },
+    tipo_doc:{
+        type:"string",
+        required:true,
+    },
     nro_doc:{
         type:"number",
         required:true,
         unique: true
     },
     email:{
+        type:"string",
+        required:true,
+    },
+    contraseña:{
         type:"string",
         required:true,
     },
@@ -34,6 +42,7 @@ const userSchema = new Schema({
         type:"number",
     }
 })
+
 
 const userModel = mongoose.model("users",userSchema);
 exports.userModel = userModel;
