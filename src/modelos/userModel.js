@@ -5,7 +5,7 @@ const userSchema = new Schema({
     nro_registro:{
         type:"number",
     },
-    nombre:{
+    nombres:{
         type:"string",
         required:true
     },

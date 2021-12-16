@@ -47,11 +47,11 @@ predioRutas.put("/editar", function (req, res) {
     })
 });
 
-predioRutas.delete("/eliminar/:id", function (req, res) {
+predioRutas.delete("/eliminar/:codigo", function (req, res) {
     //Capturar los datos que vienen del cliente
-    const i = req.params.id;
+    const i = req.params.codigo;
     //Buscar por nombre de producto en 'BD'
-    predioModel.findOneAndDelete({id:i},(error,resp)=>{
+    predioModel.findOneAndDelete({codigo:i},(error,resp)=>{
         if(error){
             res.send({ estado: "error", msg: "ERROR: Predio NO eliminado" })
         }

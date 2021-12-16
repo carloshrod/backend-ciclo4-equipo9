@@ -7,8 +7,9 @@ const predioSchema = new Schema({
     },
     codigo:{
         type:"string",
-        unique:true,
-        required:true
+        required:true,
+        unique:true
+
     },
     nom_prop:{
         type:"string",
@@ -35,8 +36,19 @@ const predioSchema = new Schema({
     barrio:{
         type:"string",
         required:true
+    },
+    fecha_pago:{
+        type:"date",
+        required:true
+    },
+    fecha_pago2:{
+        type:"date",
+        required:true
+    },
+    fecha_pago3:{
+        type:"date",
+        required:true
     }
-
 })
 
 const predioModel = mongoose.model("predios",predioSchema);

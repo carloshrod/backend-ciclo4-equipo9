@@ -2,3 +2,5 @@
 node_modules/.cache/@babel/register/.babel.7.16.0.development.json
 node_modules/.cache/@babel/register/.babel.7.16.0.development.json
 *.json
+node_modules/.cache/@babel/register/.babel.7.16.0.development.json
+*.json

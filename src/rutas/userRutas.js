@@ -22,7 +22,9 @@ userRutas.get("/listar", function (req, res) {
 userRutas.post("/guardar", function (req, res) {
     const data = req.body;
     const user = new userModel(data);
+    console.log(data)
     user.save(function (error) {
+        console.log(error)
         if (error) {
             res.send({ estado: "error", msg: "ERROR: Usuario NO guardado" });
             return false;
@@ -45,11 +47,11 @@ userRutas.put("/editar", function (req, res) {
     })
 });
 
-userRutas.delete("/eliminar/:id", function (req, res) {
+userRutas.delete("/eliminar/:nro_doc", function (req, res) {
     //Capturar los datos que vienen del cliente
-    const i = req.params.id;
+    const i = req.params.nro_doc;
     //Buscar por nombre de producto en 'BD'
-    userModel.findOneAndDelete({id:i},(error,resp)=>{
+    userModel.findOneAndDelete({nro_doc:i},(error,resp)=>{
         if(error){
             res.send({ estado: "error", msg: "ERROR: Usuario NO eliminado" })
         }
