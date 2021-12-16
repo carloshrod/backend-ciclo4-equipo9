@@ -3,43 +3,43 @@ const Schema = mongoose.Schema;
 
 const userSchema = new Schema({
     nombres:{
-        type:"string",
-        required:true
+        type: "string",
+        required: true
     },
     apellidos:{
-        type:"string",
-        required:true
+        type: "string",
+        required: true
     },
     tipo_doc:{
-        type:"string",
-        required:true,
+        type: "string",
+        required: true
     },
     nro_doc:{
-        type:"number",
-        required:true,
+        type: "number",
+        required: true,
         unique: true
     },
     email:{
         type:"string",
-        required:true,
+        required: true,
+        unique: true
     },
-    contraseña:{
+    password:{
         type:"string",
-        required:true,
+        required: true
     },
     telefono:{
         type:"number",
-        required:true
+        required: true
     },
     direccion:{
         type:"string",
-        required:true
+        required: true
     },
     rol:{
         type:"number",
     }
 })
-
 
 const userModel = mongoose.model("users",userSchema);
 exports.userModel = userModel;

@@ -1,3 +1,4 @@
+const { compare } = require('bcryptjs');
 const { Router } = require('express');
 const userRutas = Router();
 const { userModel } = require('../modelos/userModel');
@@ -57,6 +58,25 @@ userRutas.delete("/eliminar/:nro_doc", function (req, res) {
         }
         res.send({ estado: "ok", msg: "Eliminado satisfactoriamente" })
     })
+})
+
+userRutas.post("/login", async function (req, res) {
+    try {
+        const {email, password} = req.body;
+        const user = await userModel.findOne({ email });
+        console.log(user.email)
+        if (!user) {
+            return res.status(401).send({ estado: "error", msg: "Credenciales NO válidas!!!" });
+        }
+        const passOK = await compare(password, user.password);
+        if (passOK) {
+            return res.status(200).send({ estado: "ok", msg: "Logueado con éxito!!!"});
+        } else {
+            return res.status(401).send({ estado: "error", msg: "Credenciales NO válidas!!!"});
+        }   
+    } catch (error) {
+        return res.status(401).send({ estado: "error", msg: "Credenciales NO válidas!!!"});
+    }
 })
 
 exports.userRutas = userRutas;

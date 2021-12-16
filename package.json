@@ -2,11 +2,11 @@
   "name": "sesion11-back",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "npm run build && node ./build/index.js",
-    "dev": "nodemon --exec ./node_modules/.bin/babel-node src/index.js",
+    "start": "npm run build && node ./build/server.js",
+    "dev": "nodemon --exec ./node_modules/.bin/babel-node src/server.js",
     "build:babel": "babel -d ./build ./src -s",
     "build": "npm run build:babel",
     "prettier": "prettier src/**/*.js",
@@ -22,6 +22,8 @@
     "@babel/preset-env": "^7.16.4"
   },
   "dependencies": {
+    "bcrypt": "^5.0.1",
+    "bcryptjs": "^2.4.3",
     "cors": "^2.8.5",
     "express": "^4.17.1",
     "mongodb": "^4.2.1",
