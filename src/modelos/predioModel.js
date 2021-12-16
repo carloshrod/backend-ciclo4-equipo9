@@ -45,6 +45,10 @@ const predioSchema = new Schema({
     fecha_pago3:{
         type:"date",
         required:true
+    },
+    asociado:{
+        type:"number",
+        default: 1
     }
 })
 

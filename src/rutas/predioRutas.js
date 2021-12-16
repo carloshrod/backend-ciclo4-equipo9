@@ -59,4 +59,42 @@ predioRutas.delete("/eliminar/:codigo", function (req, res) {
     })
 })
 
+predioRutas.get("/consultar/:doc", function (req, res) {
+    const i = req.params.doc;
+    // Busca el producto en la BD
+    predioModel.find({doc_prop:i,asociado:1}, function (error, predio) {
+        // Si hubo error
+        if (error) {
+            res.send({ estado: "error", msg: "Predios NO encontrado" })
+            return false;
+        } else {
+            if (predio !== null) {
+                res.send({ estado: "ok", msg: "Predios Visualizados", data: predio })
+            } else {
+                res.send({ estado: "error", msg: "Predios NO encontrado" })
+            }
+        }
+    })
+})
+
+predioRutas.get("/asociar/:predio", function (req, res) {
+    const i = req.params.predio;
+    // Busca el producto en la BD
+    predioModel.updateOne({codigo:i},{asociado:0}, function (error, predio) {
+        // Si hubo error
+        if (error) {
+            res.send({ estado: "error", msg: "Predios NO Asociado" })
+            return false;
+        } else {
+            if (predio !== null) {
+                res.send({ estado: "ok", msg: "Predios Asociado correctamente"})
+            } else {
+                res.send({ estado: "error", msg: "Predios NO encontrado" })
+            }
+        }
+    })
+})
+
+
+
 exports.predioRutas = predioRutas;
