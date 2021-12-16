@@ -2,9 +2,6 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const userSchema = new Schema({
-    nro_registro:{
-        type:"number",
-    },
     nombres:{
         type:"string",
         required:true

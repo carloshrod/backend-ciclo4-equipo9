@@ -2,9 +2,6 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const predioSchema = new Schema({
-    nro_registro:{
-        type:"number",
-    },
     codigo:{
         type:"string",
         required:true,

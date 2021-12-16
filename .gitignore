@@ -4,3 +4,13 @@ node_modules/.cache/@babel/register/.babel.7.16.0.development.json
 *.json
 node_modules/.cache/@babel/register/.babel.7.16.0.development.json
 *.json
+node_modules/yallist/yallist.js
+*.md
+node_modules/yallist/LICENSE
+node_modules/yallist/iterator.js
+node_modules
+*.json
+node_modules/.cache/@babel/register/.babel.7.16.0.development.json
+*.json
+node_modules/.package-lock.json
+package-lock.json
