@@ -1,26 +1,29 @@
-const { compare } = require('bcryptjs');
 const { Router } = require('express');
 const userRutas = Router();
 const { userModel } = require('../modelos/userModel');
+const { compare } = require('bcryptjs');
+const { sign } = require("jsonwebtoken");
+const { authMid } = require('../middlewares/authMid');
+
 
 userRutas.get("/listar", function (req, res) {
     // Busca el producto en la BD
     userModel.find({}, function (error, user) {
         // Si hubo error
         if (error) {
-            res.send({ estado: "error", msg: "Producto NO encontrado" })
+            res.send({ estado: "error", msg: "Usuario NO encontrado" })
             return false;
         } else {
             if (user !== null) {
                 res.send({ estado: "ok", msg: "Usuarios Visualizados", data: user })
             } else {
-                res.send({ estado: "error", msg: "Producto NO encontrado" })
+                res.send({ estado: "error", msg: "Usuarios NO encontrados" })
             }
         }
     })
 });
 
-userRutas.post("/guardar", function (req, res) {
+userRutas.post("/guardar", authMid, function (req, res) {
     const data = req.body;
     const user = new userModel(data);
     console.log(data)
@@ -31,6 +34,20 @@ userRutas.post("/guardar", function (req, res) {
             return false;
         }
         res.send({ estado: "ok", msg: "Guardado satisfactoriamente", data: user })
+    })
+});
+
+userRutas.post("/registro", function (req, res) {
+    const data = req.body;
+    const user = new userModel(data);
+    console.log(data)
+    user.save(function (error) {
+        console.log(error)
+        if (error) {
+            res.send({ estado: "error", msg: "ERROR: Usuario NO registrado" });
+            return false;
+        }
+        res.send({ estado: "ok", msg: "Registrado satisfactoriamente", data: user })
     })
 });
 
@@ -64,13 +81,20 @@ userRutas.post("/login", async function (req, res) {
     try {
         const {email, password} = req.body;
         const user = await userModel.findOne({ email });
-        console.log(user.email)
         if (!user) {
             return res.status(401).send({ estado: "error", msg: "Credenciales NO válidas!!!" });
         }
         const passOK = await compare(password, user.password);
         if (passOK) {
-            return res.status(200).send({ estado: "ok", msg: "Logueado con éxito!!!"});
+            const token = sign(
+                {
+                    usuario: user.email,
+                    rol: user.rol
+                },
+                process.env.JWT_SECRET_KEY,
+                { expiresIn: '1d' }
+            )
+            return res.status(200).send({ estado: "ok", msg: "Logueado con éxito!!!", token, url: "/home-admin" });
         } else {
             return res.status(401).send({ estado: "error", msg: "Credenciales NO válidas!!!"});
         }   

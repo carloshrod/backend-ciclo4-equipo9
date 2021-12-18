@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
+const { genSalt, hash} = require('bcryptjs');
 
 const userSchema = new Schema({
     nombres:{
@@ -17,7 +18,7 @@ const userSchema = new Schema({
     nro_doc:{
         type: "number",
         required: true,
-        unique: true
+        unique: true,
     },
     email:{
         type:"string",
@@ -38,7 +39,13 @@ const userSchema = new Schema({
     },
     rol:{
         type:"number",
-    }
+    },
+});
+
+userSchema.pre("save", async function(next){
+    const salt = await genSalt(10);
+    this.password = await hash(this.password, salt);
+    next();
 })
 
 const userModel = mongoose.model("users",userSchema);

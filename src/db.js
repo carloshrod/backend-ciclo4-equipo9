@@ -1,5 +1,16 @@
 const users = [
     {
+        "nombres": "Paula",
+        "apellidos": "Vargas",
+        "tipo_doc": "1",
+        "nro_doc": 1045668604,
+        "email": "paula@gmail.com",
+        "password": "Paula_1234",
+        "telefono": 3157893201,
+        "direccion": "Calle 564",
+        "rol": "2"
+    },
+    {
         "id": 1,
         "nombre": "Carlos",
         "apellidos": "Hernández",

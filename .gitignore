@@ -6,4 +6,10 @@ node_modules/yallist/yallist.js
 *.md
 node_modules/yallist/LICENSE
 node_modules/yallist/iterator.js
-node_modules
+node_modules/
+.env
+*.json
+node_modules/.cache/@babel/register/.babel.7.16.0.development.json
+package.json
+package-lock.json
+src/db.js
