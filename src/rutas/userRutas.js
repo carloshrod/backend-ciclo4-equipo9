@@ -51,21 +51,23 @@ userRutas.post("/registro", function (req, res) {
     })
 });
 
-userRutas.put("/editar", function (req, res) {
-    let data = req.body;
+userRutas.post("/editar", authMid, function (req, res) {
+    const data = req.body;
     const user = new userModel(data);
+    console.log(data)
     user.updateOne({
         $set: req.body
     }, function (error) {
+        console.log(error)
         if (error) {
             res.send({ estado: "error", msg: "ERROR: Usuario NO actualizado" });
             return false;
         }
-        res.send({ estado: "ok", msg: "Actualizado satisfactoriamente" })
+        res.send({ estado: "ok", msg: "Actualizado satisfactoriamente", data: user })
     })
 });
 
-userRutas.delete("/eliminar/:nro_doc", function (req, res) {
+userRutas.delete("/eliminar/:nro_doc", authMid, function (req, res) {
     //Capturar los datos que vienen del cliente
     const i = req.params.nro_doc;
     //Buscar por nombre de producto en 'BD'

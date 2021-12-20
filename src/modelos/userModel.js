@@ -40,6 +40,9 @@ const userSchema = new Schema({
     rol:{
         type:"number",
     },
+    estado:{
+        type:"number",
+    }
 });
 
 userSchema.pre("save", async function(next){

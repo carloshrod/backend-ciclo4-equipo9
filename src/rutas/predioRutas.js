@@ -1,4 +1,5 @@
 const { Router } = require('express');
+const { authPrediosMid } = require('../middlewares/authPrediosMid');
 const predioRutas = Router();
 const { predioModel } = require('../modelos/predioModel');
 
@@ -19,7 +20,7 @@ predioRutas.get("/listar", function (req, res) {
     })
 })
 
-predioRutas.post("/guardar", function (req, res) {
+predioRutas.post("/guardar", authPrediosMid, function (req, res) {
     const data = req.body;
     const predio = new predioModel(data);
     console.log(data);
@@ -33,21 +34,21 @@ predioRutas.post("/guardar", function (req, res) {
     })
 });
 
-predioRutas.put("/editar", function (req, res) {
+predioRutas.post("/editar", authPrediosMid, function (req, res) {
     const data = req.body;
     const predio = new predioModel(data);
     predio.updateOne({
         $set: req.body
     }, function (error) {
         if (error) {
-            res.send({ estado: "error", msg: "ERROR: Usuario NO actualizado" });
+            res.send({ estado: "error", msg: "ERROR: predio NO actualizado" });
             return false;
         }
-        res.send({ estado: "ok", msg: "Actualizado satisfactoriamente"})
+        res.send({ estado: "ok", msg: "Actualizado satisfactoriamente", data: predio})
     })
 });
 
-predioRutas.delete("/eliminar/:codigo", function (req, res) {
+predioRutas.delete("/eliminar/:codigo", authPrediosMid, function (req, res) {
     //Capturar los datos que vienen del cliente
     const i = req.params.codigo;
     //Buscar por nombre de producto en 'BD'

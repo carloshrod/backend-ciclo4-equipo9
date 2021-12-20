@@ -6,7 +6,6 @@ const predioSchema = new Schema({
         type:"string",
         required:true,
         unique:true
-
     },
     nom_prop:{
         type:"string",
@@ -35,20 +34,23 @@ const predioSchema = new Schema({
         required:true
     },
     fecha_pago:{
-        type:"date",
+        type:"string",
         required:true
     },
     fecha_pago2:{
-        type:"date",
+        type:"string",
         required:true
     },
     fecha_pago3:{
-        type:"date",
+        type:"string",
         required:true
     },
-    asociado:{
+    // asociado:{
+    //     type:"number",
+    //     default: 1
+    // },
+    estado:{
         type:"number",
-        default: 1
     }
 })
 

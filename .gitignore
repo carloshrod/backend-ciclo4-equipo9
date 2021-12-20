@@ -13,3 +13,4 @@ node_modules/.cache/@babel/register/.babel.7.16.0.development.json
 package.json
 package-lock.json
 src/db.js
+*.json
