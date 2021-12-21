@@ -81,6 +81,27 @@ predioRutas.get("/consultar/:doc_prop", function (req, res) {
         }
     })
 });
+predioRutas.get("/consultarP/:codigo", function (req, res) {
+    // Captura el codigo del predio a buscar
+    const i = req.params.codigo;
+    console.log(i)
+    // Busca el producto en la BD
+    predioModel.findOne({ codigo: i }, (error, predio) => {
+        console.log(error)
+        console.log(predio)
+        // Si hubo error
+        if (error) {
+            res.send({ estado: "error", msg: "Predio NO encontrado" })
+            return false;
+        } else {
+            if (predio !== null) {
+                res.send({ estado: "ok", msg: "Predio Encontrado", data: predio })
+            } else {
+                res.send({ estado: "error", msg: "Predio NO encontrado" })
+            }
+        }
+    })
+});
 
 // predioRutas.get("/consultar/:doc", function (req, res) {
 //     const i = req.params.doc;
