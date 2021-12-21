@@ -60,12 +60,12 @@ predioRutas.delete("/eliminar/:codigo", authPrediosMid, function (req, res) {
     })
 })
 
-predioRutas.get("/consultar/:codigo", function (req, res) {
+predioRutas.get("/consultar/:doc_prop", function (req, res) {
     // Captura el codigo del predio a buscar
-    const i = req.params.codigo;
+    const i = req.params.doc_prop;
     console.log(i)
     // Busca el producto en la BD
-    predioModel.findOne({ codigo: i }, (error, predio) => {
+    predioModel.findOne({ doc_prop: i }, (error, predio) => {
         console.log(error)
         console.log(predio)
         // Si hubo error
