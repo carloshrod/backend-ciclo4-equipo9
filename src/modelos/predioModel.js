@@ -44,6 +44,13 @@ const predioSchema = new Schema({
         type:"string",
         required:true
     },
+    valor_predio:{
+        type:"number",
+        required:true
+    },
+    valor_predial:{
+        type:"number",
+    },
     // asociado:{
     //     type:"number",
     //     default: 1
