@@ -65,7 +65,7 @@ predioRutas.get("/consultar/:doc_prop", function (req, res) {
     const i = req.params.doc_prop;
     console.log(i)
     // Busca el producto en la BD
-    predioModel.findOne({ doc_prop: i }, (error, predio) => {
+    predioModel.find({ doc_prop: i }, (error, predio) => {
         console.log(error)
         console.log(predio)
         // Si hubo error
