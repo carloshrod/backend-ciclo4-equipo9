@@ -71,8 +71,8 @@ userRutas.delete("/eliminar/:nro_doc", authMid, function (req, res) {
     //Capturar los datos que vienen del cliente
     const i = req.params.nro_doc;
     //Buscar por nombre de producto en 'BD'
-    userModel.findOneAndDelete({nro_doc:i},(error,resp)=>{
-        if(error){
+    userModel.findOneAndDelete({ nro_doc: i }, (error, resp) => {
+        if (error) {
             res.send({ estado: "error", msg: "ERROR: Usuario NO eliminado" })
         }
         res.send({ estado: "ok", msg: "Eliminado satisfactoriamente" })
@@ -81,7 +81,7 @@ userRutas.delete("/eliminar/:nro_doc", authMid, function (req, res) {
 
 userRutas.post("/login", async function (req, res) {
     try {
-        const {email, password} = req.body;
+        const { email, password } = req.body;
         const user = await userModel.findOne({ email });
         if (!user) {
             return res.status(401).send({ estado: "error", msg: "Credenciales NO válidas!!!" });
@@ -91,17 +91,27 @@ userRutas.post("/login", async function (req, res) {
             const token = sign(
                 {
                     usuario: user.email,
+                    nombre: user.nombres +" "+ user.apellidos,
+                    nro_doc: user.nro_doc,
+                    direccion: user.direccion,
+                    telefono: user.telefono,
                     rol: user.rol
                 },
                 process.env.JWT_SECRET_KEY,
-                { expiresIn: '1d' }
+                { expiresIn: '1h' }
             )
-            return res.status(200).send({ estado: "ok", msg: "Logueado con éxito!!!", token, url: "/home-admin" });
+            if (user.rol === 3) {
+                return res.status(200).send({ estado: "ok", msg: "Logueado con éxito!!!", token, url: "/home-user-ext" });
+            } else if (user.rol === 2) {
+                return res.status(200).send({ estado: "ok", msg: "Logueado con éxito!!!", token, url: "/home-user-int" });
+            } else if (user.rol === 1) {
+                return res.status(200).send({ estado: "ok", msg: "Logueado con éxito!!!", token, url: "/home-admin" });
+            }
         } else {
-            return res.status(401).send({ estado: "error", msg: "Credenciales NO válidas!!!"});
-        }   
+            return res.status(401).send({ estado: "error", msg: "Credenciales NO válidas!!!" });
+        }
     } catch (error) {
-        return res.status(401).send({ estado: "error", msg: "Credenciales NO válidas!!!"});
+        return res.status(401).send({ estado: "error", msg: "Credenciales NO válidas!!!" });
     }
 })
 

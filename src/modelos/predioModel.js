@@ -14,7 +14,6 @@ const predioSchema = new Schema({
     doc_prop:{
         type:"number",
         required:true,
-        unique:true
     },
     area_c:{
         type:"number",

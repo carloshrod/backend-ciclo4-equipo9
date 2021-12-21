@@ -60,41 +60,63 @@ predioRutas.delete("/eliminar/:codigo", authPrediosMid, function (req, res) {
     })
 })
 
-predioRutas.get("/consultar/:doc", function (req, res) {
-    const i = req.params.doc;
+predioRutas.get("/consultar/:codigo", function (req, res) {
+    // Captura el codigo del predio a buscar
+    const i = req.params.codigo;
+    console.log(i)
     // Busca el producto en la BD
-    predioModel.find({doc_prop:i,asociado:1}, function (error, predio) {
+    predioModel.findOne({ codigo: i }, (error, predio) => {
+        console.log(error)
+        console.log(predio)
         // Si hubo error
         if (error) {
-            res.send({ estado: "error", msg: "Predios NO encontrado" })
+            res.send({ estado: "error", msg: "Predio NO encontrado" })
             return false;
         } else {
             if (predio !== null) {
-                res.send({ estado: "ok", msg: "Predios Visualizados", data: predio })
+                res.send({ estado: "ok", msg: "Predio Encontrado", data: predio })
             } else {
-                res.send({ estado: "error", msg: "Predios NO encontrado" })
+                res.send({ estado: "error", msg: "Predio NO encontrado" })
             }
         }
     })
-})
+});
 
-predioRutas.get("/asociar/:predio", function (req, res) {
-    const i = req.params.predio;
-    // Busca el producto en la BD
-    predioModel.updateOne({codigo:i},{asociado:0}, function (error, predio) {
-        // Si hubo error
-        if (error) {
-            res.send({ estado: "error", msg: "Predios NO Asociado" })
-            return false;
-        } else {
-            if (predio !== null) {
-                res.send({ estado: "ok", msg: "Predios Asociado correctamente"})
-            } else {
-                res.send({ estado: "error", msg: "Predios NO encontrado" })
-            }
-        }
-    })
-})
+// predioRutas.get("/consultar/:doc", function (req, res) {
+//     const i = req.params.doc;
+//     // Busca el producto en la BD
+//     predioModel.find({doc_prop:i,asociado:1}, function (error, predio) {
+//         // Si hubo error
+//         if (error) {
+//             res.send({ estado: "error", msg: "Predios NO encontrado" })
+//             return false;
+//         } else {
+//             if (predio !== null) {
+//                 res.send({ estado: "ok", msg: "Predios Visualizados", data: predio })
+//             } else {
+//                 res.send({ estado: "error", msg: "Predios NO encontrado" })
+//             }
+//         }
+//     })
+// })
+
+// predioRutas.get("/asociar/:predio", function (req, res) {
+//     const i = req.params.predio;
+//     // Busca el producto en la BD
+//     predioModel.updateOne({codigo:i},{asociado:0}, function (error, predio) {
+//         // Si hubo error
+//         if (error) {
+//             res.send({ estado: "error", msg: "Predios NO Asociado" })
+//             return false;
+//         } else {
+//             if (predio !== null) {
+//                 res.send({ estado: "ok", msg: "Predios Asociado correctamente"})
+//             } else {
+//                 res.send({ estado: "error", msg: "Predios NO encontrado" })
+//             }
+//         }
+//     })
+// })
 
 
 
