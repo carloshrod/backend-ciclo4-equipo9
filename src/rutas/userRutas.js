@@ -103,9 +103,9 @@ userRutas.post("/login", async function (req, res) {
             if (user.rol === 3) {
                 return res.status(200).send({ estado: "ok", msg: "Logueado con éxito!!!", token, url: "/home-user-ext" });
             } else if (user.rol === 2) {
-                return res.status(200).send({ estado: "ok", msg: "Logueado con éxito!!!", token, url: "/home-user-int" });
+                return res.status(200).send({ estado: "ok", msg: "Logueado con éxito!!!", token, url: "/home-user-int/dashboard" });
             } else if (user.rol === 1) {
-                return res.status(200).send({ estado: "ok", msg: "Logueado con éxito!!!", token, url: "/home-admin" });
+                return res.status(200).send({ estado: "ok", msg: "Logueado con éxito!!!", token, url: "/home-admin/dashboard" });
             }
         } else {
             return res.status(401).send({ estado: "error", msg: "Credenciales NO válidas!!!" });
