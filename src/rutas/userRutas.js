@@ -44,10 +44,9 @@ userRutas.post("/registro", function (req, res) {
     user.save(function (error) {
         console.log(error)
         if (error) {
-            res.send({ estado: "error", msg: "ERROR: Usuario NO registrado" });
-            return false;
+            return res.status(401).send({ estado: "error", msg: "ERROR: Usuario NO registrado" });
         }
-        res.send({ estado: "ok", msg: "Registrado satisfactoriamente", data: user })
+        return res.status(200).send({ estado: "ok", msg: "Registrado satisfactoriamente", data: user })
     })
 });
 
@@ -101,11 +100,11 @@ userRutas.post("/login", async function (req, res) {
                 { expiresIn: '1h' }
             )
             if (user.rol === 3) {
-                return res.status(200).send({ estado: "ok", msg: "Logueado con éxito!!!", token, url: "/home-user-ext" });
+                return res.status(200).send({ estado: "ok", msg: "Logueado con éxito!!!", token, url: "/user-ext-home" });
             } else if (user.rol === 2) {
-                return res.status(200).send({ estado: "ok", msg: "Logueado con éxito!!!", token, url: "/home-user-int/dashboard" });
+                return res.status(200).send({ estado: "ok", msg: "Logueado con éxito!!!", token, url: "/user-int/dashboard" });
             } else if (user.rol === 1) {
-                return res.status(200).send({ estado: "ok", msg: "Logueado con éxito!!!", token, url: "/home-admin/dashboard" });
+                return res.status(200).send({ estado: "ok", msg: "Logueado con éxito!!!", token, url: "/admin/dashboard" });
             }
         } else {
             return res.status(401).send({ estado: "error", msg: "Credenciales NO válidas!!!" });
