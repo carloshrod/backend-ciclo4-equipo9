@@ -27,10 +27,9 @@ predioRutas.post("/guardar", authPrediosMid, function (req, res) {
     predio.save(function (error) {
         if (error) {
             console.log(res.error);
-            res.send({ estado: "error", msg: "ERROR: Predio NO guardado" });
-            return false;
+            return res.status(401).send({ estado: "error", msg: "ERROR: Predio NO guardado" });
         }
-        res.send({ estado: "ok", msg: "Guardado satisfactoriamente", data: predio })
+        return res.status(200).send({ estado: "ok", msg: "Guardado satisfactoriamente", data: predio })
     })
 });
 

@@ -30,10 +30,9 @@ userRutas.post("/guardar", authMid, function (req, res) {
     user.save(function (error) {
         console.log(error)
         if (error) {
-            res.send({ estado: "error", msg: "ERROR: Usuario NO guardado" });
-            return false;
+            return res.status(401).send({ estado: "error", msg: "ERROR: Usuario NO guardado" });
         }
-        res.send({ estado: "ok", msg: "Guardado satisfactoriamente", data: user })
+        return res.status(200).send({ estado: "ok", msg: "Guardado satisfactoriamente", data: user })
     })
 });
 
@@ -59,10 +58,9 @@ userRutas.post("/editar", authMid, function (req, res) {
     }, function (error) {
         console.log(error)
         if (error) {
-            res.send({ estado: "error", msg: "ERROR: Usuario NO actualizado" });
-            return false;
+            return res.status(401).send({ estado: "error", msg: "ERROR: Usuario NO actualizado" });
         }
-        res.send({ estado: "ok", msg: "Actualizado satisfactoriamente", data: user })
+        return res.status(200).send({ estado: "ok", msg: "Actualizado satisfactoriamente", data: user })
     })
 });
 
