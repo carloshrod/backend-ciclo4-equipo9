@@ -15,7 +15,7 @@ const authPrediosMid = (req, res, next) => {
         console.log(payload)
         // Verifica el Rol de usuario
         if (payload.rol === 3) {
-            return res.status(403).json({ estado: "error", msg: "Solo los administradores pueden crear usuarios!!!" });
+            return res.json({ estado: "error", msg: "No estás autorizado para realizar esta acción!!!" });
         }
     } catch (err) {
         console.log(err);

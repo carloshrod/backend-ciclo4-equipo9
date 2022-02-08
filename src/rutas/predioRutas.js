@@ -27,9 +27,9 @@ predioRutas.post("/guardar", authPrediosMid, function (req, res) {
     predio.save(function (error) {
         if (error) {
             console.log(res.error);
-            return res.status(401).send({ estado: "error", msg: "ERROR: Predio NO guardado" });
+            return res.send({ estado: "error", msg: "ERROR: El predio no pudo ser creado!!!" });
         }
-        return res.status(200).send({ estado: "ok", msg: "Guardado satisfactoriamente", data: predio })
+        return res.status(200).send({ estado: "ok", msg: "El predio fue creado exitosamente!!!", data: predio })
     })
 });
 
@@ -40,10 +40,9 @@ predioRutas.post("/editar", authPrediosMid, function (req, res) {
         $set: req.body
     }, function (error) {
         if (error) {
-            res.send({ estado: "error", msg: "ERROR: predio NO actualizado" });
-            return false;
+            return res.send({ estado: "error", msg: "ERROR: El predio no pudo ser editado!!!" });
         }
-        res.send({ estado: "ok", msg: "Actualizado satisfactoriamente", data: predio})
+        return res.status(200).send({ estado: "ok", msg: "El predio fue editado exitosamente!!!", data: predio})
     })
 });
 
@@ -53,9 +52,9 @@ predioRutas.delete("/eliminar/:codigo", authPrediosMid, function (req, res) {
     //Buscar por nombre de producto en 'BD'
     predioModel.findOneAndDelete({codigo:i},(error,resp)=>{
         if(error){
-            res.send({ estado: "error", msg: "ERROR: Predio NO eliminado" })
+            return res.send({ estado: "error", msg: "ERROR: El predio no pudo ser eliminado!!!" })
         }
-        res.send({ estado: "ok", msg: "Eliminado satisfactoriamente" })
+        return res.status(200).send({ estado: "ok", msg: "El predio fue eliminado exitosamente!!!" })
     })
 })
 

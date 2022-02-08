@@ -4,35 +4,41 @@ const { userModel } = require('../modelos/userModel');
 const { compare } = require('bcryptjs');
 const { sign } = require("jsonwebtoken");
 const { authMid } = require('../middlewares/authMid');
-
+const upload = require('../libs/storage')
+const bcrypt = require('bcryptjs');
 
 userRutas.get("/listar", function (req, res) {
     // Busca el producto en la BD
     userModel.find({}, function (error, user) {
         // Si hubo error
         if (error) {
-            res.send({ estado: "error", msg: "Usuario NO encontrado" })
-            return false;
+            return res.status(401).send({ estado: "error", msg: "Usuarios NO encontrados" })
         } else {
             if (user !== null) {
-                res.send({ estado: "ok", msg: "Usuarios Visualizados", data: user })
+                return res.status(200).send({ estado: "ok", msg: "Usuarios Visualizados", data: user })
             } else {
-                res.send({ estado: "error", msg: "Usuarios NO encontrados" })
+                return res.status(401).send({ estado: "error", msg: "Usuarios NO encontrados" })
             }
         }
     })
 });
 
-userRutas.post("/guardar", authMid, function (req, res) {
+userRutas.post("/guardar", upload.single("avatar"), authMid, function (req, res) {
     const data = req.body;
     const user = new userModel(data);
     console.log(data)
+
+    if (req.file) {
+        const { filename } = req.file
+        user.setImgUrl(filename)
+    }
+
     user.save(function (error) {
         console.log(error)
         if (error) {
-            return res.status(401).send({ estado: "error", msg: "ERROR: Usuario NO guardado" });
+            return res.send({ estado: "error", msg: "ERROR: El usuario no pudo ser creado!!!" });
         }
-        return res.status(200).send({ estado: "ok", msg: "Guardado satisfactoriamente", data: user })
+        return res.status(200).send({ estado: "ok", msg: "El usuario fue creado exitosamente!!!", data: user })
     })
 });
 
@@ -43,9 +49,9 @@ userRutas.post("/registro", function (req, res) {
     user.save(function (error) {
         console.log(error)
         if (error) {
-            return res.status(401).send({ estado: "error", msg: "ERROR: Usuario NO registrado" });
+            return res.send({ estado: "error", msg: "ERROR: Su cuenta no pudo ser creada. Intentelo más tarde!!!" });
         }
-        return res.status(200).send({ estado: "ok", msg: "Registrado satisfactoriamente", data: user })
+        return res.status(200).send({ estado: "ok", msg: "Su cuenta fue creada exitosamente!!!", data: user })
     })
 });
 
@@ -58,9 +64,9 @@ userRutas.post("/editar", authMid, function (req, res) {
     }, function (error) {
         console.log(error)
         if (error) {
-            return res.status(401).send({ estado: "error", msg: "ERROR: Usuario NO actualizado" });
+            return res.send({ estado: "error", msg: "ERROR: El usuario no pudo ser editado!!!" });
         }
-        return res.status(200).send({ estado: "ok", msg: "Actualizado satisfactoriamente", data: user })
+        return res.status(200).send({ estado: "ok", msg: "El usuario fue editado exitosamente!!!", data: user })
     })
 });
 
@@ -70,18 +76,37 @@ userRutas.delete("/eliminar/:nro_doc", authMid, function (req, res) {
     //Buscar por nombre de producto en 'BD'
     userModel.findOneAndDelete({ nro_doc: i }, (error, resp) => {
         if (error) {
-            res.send({ estado: "error", msg: "ERROR: Usuario NO eliminado" })
+            return res.send({ estado: "error", msg: "ERROR: El usuario no pudo ser eliminado!!!" })
         }
-        res.send({ estado: "ok", msg: "Eliminado satisfactoriamente" })
+        return res.status(200).send({ estado: "ok", msg: "El usuario fue eliminado exitosamente!!!" })
     })
 })
+
+userRutas.post("/cambiar-password", async function (req, res) {
+    const { nro_doc, currentPassword, password } = req.body;
+    const user = await userModel.findOne({ nro_doc });
+    const passOK = await compare(currentPassword, user.password);
+    if (passOK) {
+        var hash = bcrypt.hashSync(password, 10);
+        userModel.updateOne({ nro_doc: nro_doc }, {
+            $set: {password: hash},
+        }, function (error) {
+            if (error) {
+                return res.send({ estado: "error", msg: "ERROR: No se pudo actualizar la contraseña", data: user });
+            }
+            return res.status(200).send({ estado: "ok", msg: "Contraseña actualizada satisfactoriamente", data: user})
+        })   
+    } else {
+        return res.send({ estado: "error", msg: "Ingrese correctamente su contraseña actual", data: user });
+    }
+});
 
 userRutas.post("/login", async function (req, res) {
     try {
         const { email, password } = req.body;
         const user = await userModel.findOne({ email });
         if (!user) {
-            return res.status(401).send({ estado: "error", msg: "Credenciales NO válidas!!!" });
+            return res.status(401).send({ estado: "error", msg: "Credenciales NO válidas. Intentelo de nuevo!!!" });
         }
         const passOK = await compare(password, user.password);
         if (passOK) {
@@ -105,7 +130,7 @@ userRutas.post("/login", async function (req, res) {
                 return res.status(200).send({ estado: "ok", msg: "Logueado con éxito!!!", token, url: "/admin/dashboard" });
             }
         } else {
-            return res.status(401).send({ estado: "error", msg: "Credenciales NO válidas!!!" });
+            return res.status(401).send({ estado: "error", msg: "Credenciales NO válidas. Intentelo de nuevo!!!" });
         }
     } catch (error) {
         return res.status(401).send({ estado: "error", msg: "Credenciales NO válidas!!!" });
