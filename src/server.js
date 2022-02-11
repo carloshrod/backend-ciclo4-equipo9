@@ -12,6 +12,7 @@ app.use(express.json()); //Middleware json()
 // APIs:
 app.use("/users",userRutas);
 app.use("/predios", predioRutas);
+app.use("/public", express.static(`${__dirname}/storage/imgs`))
 
 mongoose.connect(process.env.SERVER_DB_URL)
     .then(() => console.log("Conectado a BD"))

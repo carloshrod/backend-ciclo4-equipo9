@@ -4,8 +4,9 @@ const { userModel } = require('../modelos/userModel');
 const { compare } = require('bcryptjs');
 const { sign } = require("jsonwebtoken");
 const { authMid } = require('../middlewares/authMid');
-const upload = require('../libs/storage')
+const upload = require('../libs/storage');
 const bcrypt = require('bcryptjs');
+const { sendMail } = require('../config/mailer');
 
 userRutas.get("/listar", function (req, res) {
     // Busca el producto en la BD
@@ -25,6 +26,9 @@ userRutas.get("/listar", function (req, res) {
 
 userRutas.post("/guardar", upload.single("avatar"), authMid, function (req, res) {
     const data = req.body;
+    const toEmail = data.email;
+    const name = data.nombres;
+    const password = data.password;
     const user = new userModel(data);
     console.log(data)
 
@@ -38,7 +42,8 @@ userRutas.post("/guardar", upload.single("avatar"), authMid, function (req, res)
         if (error) {
             return res.send({ estado: "error", msg: "ERROR: El usuario no pudo ser creado!!!" });
         }
-        return res.status(200).send({ estado: "ok", msg: "El usuario fue creado exitosamente!!!", data: user })
+        sendMail(toEmail, name, password)    
+        return res.status(200).send({ estado: "ok", msg: "El usuario fue creado exitosamente!!!", data: user })   
     })
 });
 
@@ -87,17 +92,17 @@ userRutas.post("/cambiar-password", async function (req, res) {
     const user = await userModel.findOne({ nro_doc });
     const passOK = await compare(currentPassword, user.password);
     if (passOK) {
-        var hash = bcrypt.hashSync(password, 10);
+        var newPassword = bcrypt.hashSync(password, 10);
         userModel.updateOne({ nro_doc: nro_doc }, {
-            $set: {password: hash},
+            $set: { password: newPassword },
         }, function (error) {
             if (error) {
-                return res.send({ estado: "error", msg: "ERROR: No se pudo actualizar la contraseña", data: user });
+                return res.send({ estado: "error", msg: "ERROR: No se pudo actualizar la contraseña"});
             }
-            return res.status(200).send({ estado: "ok", msg: "Contraseña actualizada satisfactoriamente", data: user})
-        })   
+            return res.status(200).send({ estado: "ok", msg: "Contraseña actualizada satisfactoriamente"})
+        })
     } else {
-        return res.send({ estado: "error", msg: "Ingrese correctamente su contraseña actual", data: user });
+        return res.send({ estado: "error"});
     }
 });
 
@@ -113,14 +118,14 @@ userRutas.post("/login", async function (req, res) {
             const token = sign(
                 {
                     usuario: user.email,
-                    nombre: user.nombres +" "+ user.apellidos,
+                    nombre: user.nombres + " " + user.apellidos,
                     nro_doc: user.nro_doc,
                     direccion: user.direccion,
                     telefono: user.telefono,
                     rol: user.rol
                 },
                 process.env.JWT_SECRET_KEY,
-                { expiresIn: '1h' }
+                { expiresIn: '6h' }
             )
             if (user.rol === 3) {
                 return res.status(200).send({ estado: "ok", msg: "Logueado con éxito!!!", token, url: "/user-ext-home" });

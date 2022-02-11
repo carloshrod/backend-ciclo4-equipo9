@@ -42,8 +42,15 @@ const userSchema = new Schema({
     },
     estado:{
         type:"number",
+    },
+    imgUrl:{
+        type:"string",
     }
 });
+
+userSchema.methods.setImgUrl = function setImgUrl(filename) {
+    this.imgUrl = `http://localhost:8080/public/${filename}`
+}
 
 userSchema.pre("save", async function(next){
     const salt = await genSalt(10);
