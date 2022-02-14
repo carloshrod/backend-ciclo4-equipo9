@@ -45,6 +45,12 @@ const userSchema = new Schema({
     },
     imgUrl:{
         type:"string",
+    },
+    reset_token:{
+        type:"string",
+    },
+    expire_token:{
+        type:"date",
     }
 });
 

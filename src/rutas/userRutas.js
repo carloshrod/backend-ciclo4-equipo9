@@ -2,11 +2,13 @@ const { Router } = require('express');
 const userRutas = Router();
 const { userModel } = require('../modelos/userModel');
 const { compare } = require('bcryptjs');
-const { sign } = require("jsonwebtoken");
+const { sign } = require('jsonwebtoken');
 const { authMid } = require('../middlewares/authMid');
 const upload = require('../libs/storage');
 const bcrypt = require('bcryptjs');
-const { sendMail } = require('../config/mailer');
+const crypto = require('crypto');
+const { transporter } = require('../config/mailer');
+const { newUserOptions, resetPasswordOptions } = require('../config/emailOptions');
 
 userRutas.get("/listar", function (req, res) {
     // Busca el producto en la BD
@@ -42,8 +44,12 @@ userRutas.post("/guardar", upload.single("avatar"), authMid, function (req, res)
         if (error) {
             return res.send({ estado: "error", msg: "ERROR: El usuario no pudo ser creado!!!" });
         }
-        sendMail(toEmail, name, password)    
-        return res.status(200).send({ estado: "ok", msg: "El usuario fue creado exitosamente!!!", data: user })   
+        try {
+            transporter.sendMail(newUserOptions(toEmail, name, password))
+            return res.status(200).send({ estado: "ok", msg: "El usuario fue creado exitosamente!!!", data: user })
+        } catch (error) {
+            return res.send({ estado: "error", msg: "Ingrese un correo válido!!!" });
+        }
     })
 });
 
@@ -87,33 +93,84 @@ userRutas.delete("/eliminar/:nro_doc", authMid, function (req, res) {
     })
 })
 
-userRutas.post("/cambiar-password", async function (req, res) {
-    const { nro_doc, currentPassword, password } = req.body;
-    const user = await userModel.findOne({ nro_doc });
-    const passOK = await compare(currentPassword, user.password);
-    if (passOK) {
-        var newPassword = bcrypt.hashSync(password, 10);
-        userModel.updateOne({ nro_doc: nro_doc }, {
-            $set: { password: newPassword },
-        }, function (error) {
-            if (error) {
-                return res.send({ estado: "error", msg: "ERROR: No se pudo actualizar la contraseña"});
-            }
-            return res.status(200).send({ estado: "ok", msg: "Contraseña actualizada satisfactoriamente"})
+userRutas.post("/cambiar-password", function (req, res) {
+    const { nro_doc, currentPassword, newPassword } = req.body;
+    userModel.findOne({ nro_doc })
+        .then(user => {
+            compare(currentPassword, user.password)
+                .then(passOK => {
+                    if (passOK) {
+                        user.password = newPassword
+                        user.save().then(savedUser => {
+                            console.log(savedUser);
+                            res.status(200).send({ estado: "ok", msg: "Contraseña actualizada con éxito. Por favor, inicie sesión nuevamente!!!" })
+                        }).catch(error => {
+                            console.log(error);
+                            res.send({ estado: "error", msg: "ERROR: No se pudo actualizar la contraseña!!!" });
+                        })
+                    } else {
+                        return res.send({ estado: "error", msg: "ERROR: Ingrese correctamente su contraseña actual!!!" });
+                    }
+                })
         })
-    } else {
-        return res.send({ estado: "error"});
-    }
+});
+
+userRutas.post("/reset-password", function (req, res) {
+    const { email } = req.body;
+    crypto.randomBytes(32, (error, buffer) => {
+        if (error) {
+        }
+        const token = buffer.toString("hex");
+        userModel.findOne({ email: email })
+            .then(user => {
+                if (!user) {
+                    return res.send({ estado: "error", msg: "Por favor, revise su correo!!!" })
+                }
+                user.reset_token = token
+                user.expire_token = Date.now() + 3600000
+                user.save().then((result) => {
+                    const toEmail = user.email
+                    const name = user.nombres
+                    const resetToken = user.reset_token
+                    transporter.sendMail(resetPasswordOptions(toEmail, name, resetToken))
+                })
+                return res.status(200).json({ estado: "ok", msg: "Por favor, revise su correo!!!" })
+            })
+    })
+})
+
+userRutas.post("/new-password", function (req, res) {
+    console.log(req.body);
+    const { newPassword, sentToken } = req.body
+    userModel.findOne({ reset_token: sentToken, expire_token: { $gt: Date.now() } })
+        .then(user => {
+            if (!user) {
+                return res.json({ msg: "El link que está utilizando para restablecer su contraseña caducó. Por favor, solicite uno nuevo!!!" })
+            }
+            user.password = newPassword
+            user.reset_token = undefined
+            user.expire_token = undefined
+            user.save().then(savedUser => {
+                console.log(savedUser);
+                res.status(200).send({ estado: "ok", msg: "Contraseña restablecida con éxito!!!" })
+            }).catch(error => {
+                console.log(error);
+                res.send({ estado: "error", msg: "ERROR: No se pudo actualizar la contraseña" });
+            })
+        })
 });
 
 userRutas.post("/login", async function (req, res) {
     try {
         const { email, password } = req.body;
         const user = await userModel.findOne({ email });
+        console.log(user);
         if (!user) {
-            return res.status(401).send({ estado: "error", msg: "Credenciales NO válidas. Intentelo de nuevo!!!" });
+            return res.send({ estado: "error", msg: "Credenciales NO válidas. Intentelo de nuevo!!!" });
         }
+        console.log(password + " - " + user.password);
         const passOK = await compare(password, user.password);
+        console.log(passOK);
         if (passOK) {
             const token = sign(
                 {
@@ -135,10 +192,10 @@ userRutas.post("/login", async function (req, res) {
                 return res.status(200).send({ estado: "ok", msg: "Logueado con éxito!!!", token, url: "/admin/dashboard" });
             }
         } else {
-            return res.status(401).send({ estado: "error", msg: "Credenciales NO válidas. Intentelo de nuevo!!!" });
+            return res.send({ estado: "error", msg: "Credenciales NO válidas. Intentelo de nuevo!!!" });
         }
     } catch (error) {
-        return res.status(401).send({ estado: "error", msg: "Credenciales NO válidas!!!" });
+        return res.send({ estado: "error", msg: "Credenciales NO válidas. Intentelo de nuevo!!!" });
     }
 })
 

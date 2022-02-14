@@ -1,13 +1,12 @@
 const nodemailer = require('nodemailer');
 const { google } = require('googleapis');
-import { message } from './emailMessage';
 require("dotenv").config();
 
 const CLIENT_ID = process.env.CLIENT_ID
 const CLIENT_SECRET = process.env.CLIENT_SECRET
 const REDIRECT_URI = process.env.REDIRECT_URI
 const REFRESH_TOKEN = process.env.REFRESH_TOKEN
-const USER = process.env.USER_MAIL_SERVER
+const USER_MAIL_SERVER = process.env.USER_MAIL_SERVER
 
 const oAuth2Client = new google.auth.OAuth2(
     CLIENT_ID,
@@ -17,38 +16,53 @@ const oAuth2Client = new google.auth.OAuth2(
 
 oAuth2Client.setCredentials({ refresh_token: REFRESH_TOKEN });
 
-export async function sendMail(toEmail, name, password) {
-    try {
-        const accessToken = await oAuth2Client.getAccessToken();
+const accessToken = oAuth2Client.getAccessToken();
 
-        const transporter = nodemailer.createTransport({
-            service: "gmail",
-            auth: {
-                type: "OAuth2",
-                user: USER,
-                clientId: CLIENT_ID,
-                clientSecret: CLIENT_SECRET,
-                refreshToken: REFRESH_TOKEN,
-                accessToken: accessToken
-            },
-            tls: {
-                rejectUnauthorized: false
-            }
-        });
 
-        const mailOptions = {
-            from: `NO-REPLY <${USER}>`, // sender address
-            to: toEmail, // list of receivers
-            subject: "CUENTA CREADA ✔", // Subject line
-            text: message(toEmail, name, password),
-            html: message(toEmail, name, password),
-        };
-        const result = await transporter.sendMail(mailOptions);
-        return result;
-    } catch (error) {
-        console.log(error);
+export const transporter = nodemailer.createTransport({
+    service: "gmail",
+    auth: {
+        type: "OAuth2",
+        user: USER_MAIL_SERVER,
+        clientId: CLIENT_ID,
+        clientSecret: CLIENT_SECRET,
+        refreshToken: REFRESH_TOKEN,
+        accessToken: accessToken
+    },
+    tls: {
+        rejectUnauthorized: false
     }
-};
+});
+
+// **************************************
+
+// export async function sendMail(toEmail, name, password) {
+//     try {
+//         const accessToken = await oAuth2Client.getAccessToken();
+
+//         const transporter = nodemailer.createTransport({
+//             service: "gmail",
+//             auth: {
+//                 type: "OAuth2",
+//                 user: USER,
+//                 clientId: CLIENT_ID,
+//                 clientSecret: CLIENT_SECRET,
+//                 refreshToken: REFRESH_TOKEN,
+//                 accessToken: accessToken
+//             },
+//             tls: {
+//                 rejectUnauthorized: false
+//             }
+//         });
+
+//         const result = await transporter.sendMail(NewUserOptions(toEmail, name, password));
+//         return result;
+//     } catch (error) {
+//         console.log(error);
+//     }
+// };
+
+// **************************************
 
 // export const transporter = nodemailer.createTransport({
 //     host: "smtp.gmail.com",
