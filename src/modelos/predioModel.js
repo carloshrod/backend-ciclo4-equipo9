@@ -16,14 +16,14 @@ const predioSchema = new Schema({
         required:true,
     },
     area_c:{
-        type:"number",
+        type:"string",
         required:true
     },
     area_t:{
-        type:"number",
+        type:"string",
         required:true
     },
-    direccion:{
+    direccion_predio:{
         type:"string",
         required:true,
         unique:true
@@ -34,18 +34,15 @@ const predioSchema = new Schema({
     },
     fecha_pago:{
         type:"string",
-        required:true
     },
     fecha_pago2:{
         type:"string",
-        required:true
     },
     fecha_pago3:{
         type:"string",
-        required:true
     },
     valor_predio:{
-        type:"number",
+        type:"string",
         required:true
     },
     valor_predial:{

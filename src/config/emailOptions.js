@@ -29,7 +29,7 @@ export function resetPasswordOptions(toEmail, name, resetToken) {
     return {
         from: `NO-REPLY <${USER_MAIL_SERVER}>`, // sender address
         to: toEmail, // list of receivers
-        subject: "CUENTA CREADA ✔", // Subject line
+        subject: "RESTABLECER CONTRASEÑA ✔", // Subject line
         html: `<p>Sr(a). <b>${name}</b>,</p>
 
         <p>Usted solicitó restablecer su contraseña.

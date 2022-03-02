@@ -25,6 +25,7 @@ predioRutas.post("/guardar", authPrediosMid, function (req, res) {
     const predio = new predioModel(data);
     console.log(data);
     predio.save(function (error) {
+        console.log(error)
         if (error) {
             console.log(res.error);
             return res.send({ estado: "error", msg: "ERROR: El predio no pudo ser creado!!!" });
@@ -79,7 +80,8 @@ predioRutas.get("/consultar/:doc_prop", function (req, res) {
         }
     })
 });
-predioRutas.get("/consultarP/:codigo", function (req, res) {
+
+predioRutas.get("/consultar-uno/:codigo", function (req, res) {
     // Captura el codigo del predio a buscar
     const i = req.params.codigo;
     console.log(i)

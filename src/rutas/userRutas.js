@@ -5,7 +5,6 @@ const { compare } = require('bcryptjs');
 const { sign } = require('jsonwebtoken');
 const { authMid } = require('../middlewares/authMid');
 const upload = require('../libs/storage');
-const bcrypt = require('bcryptjs');
 const crypto = require('crypto');
 const { transporter } = require('../config/mailer');
 const { newUserOptions, resetPasswordOptions } = require('../config/emailOptions');
@@ -100,13 +99,19 @@ userRutas.post("/cambiar-password", function (req, res) {
             compare(currentPassword, user.password)
                 .then(passOK => {
                     if (passOK) {
-                        user.password = newPassword
-                        user.save().then(savedUser => {
-                            console.log(savedUser);
-                            res.status(200).send({ estado: "ok", msg: "Contraseña actualizada con éxito. Por favor, inicie sesión nuevamente!!!" })
-                        }).catch(error => {
-                            console.log(error);
-                            res.send({ estado: "error", msg: "ERROR: No se pudo actualizar la contraseña!!!" });
+                        compare(newPassword, user.password).then(newPassOK => {
+                            if (!newPassOK) {
+                                user.password = newPassword
+                                user.save().then(savedUser => {
+                                    console.log(savedUser);
+                                    res.status(200).send({ estado: "ok", msg: "Contraseña actualizada con éxito. Por favor, inicie sesión nuevamente!!!" })
+                                }).catch(error => {
+                                    console.log(error);
+                                    res.send({ estado: "error", msg: "ERROR: No se pudo actualizar la contraseña!!!" });
+                                })        
+                            } else {
+                                return res.send({ estado: "error", msg: "ERROR: Por favor ingrese una contraseña que no haya utilizado antes!!!"})
+                            }
                         })
                     } else {
                         return res.send({ estado: "error", msg: "ERROR: Ingrese correctamente su contraseña actual!!!" });
