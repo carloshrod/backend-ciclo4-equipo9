@@ -51,6 +51,15 @@ const userSchema = new Schema({
     },
     expire_token:{
         type:"date",
+    },
+    created_users:{
+        type:"number"
+    },
+    edited_users:{
+        type:"number"
+    },
+    deleted_users:{
+        type:"number"
     }
 });
 

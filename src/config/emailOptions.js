@@ -33,7 +33,7 @@ export function resetPasswordOptions(toEmail, name, resetToken) {
         html: `<p>Sr(a). <b>${name}</b>,</p>
 
         <p>Usted solicitó restablecer su contraseña.
-        Por favor, ingrese en este <a href="http://localhost:3000/reset-password/${resetToken}">Link</a> y siga las instrucciones.</p>
+        Por favor, ingrese en este <a href="http://http://192.168.1.65:3000/reset-password/${resetToken}">Link</a> y siga las instrucciones.</p>
 
         <h3>El link tendrá validez durante 1 hora a partir de este momento!!!</h3>
         `

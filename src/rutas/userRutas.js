@@ -80,6 +80,25 @@ userRutas.post("/editar", authMid, function (req, res) {
     })
 });
 
+userRutas.post("/actualizar-user-int", function (req, res) {
+    const { nro_doc, accion } = req.body
+    userModel.findOne({ nro_doc: nro_doc })
+        .then(user => {
+            if (accion === "crear") {
+                user.created_users += 1
+            }
+            if (accion === "editar") {
+                user.edited_users += 1
+            }
+            if (accion === "borrar") {
+                user.deleted_users += 1
+            }
+            user.save().then((user) => {
+                return res.status(200).send({ data: user })
+            })
+        })
+})
+
 userRutas.delete("/eliminar/:nro_doc", authMid, function (req, res) {
     //Capturar los datos que vienen del cliente
     const i = req.params.nro_doc;
@@ -108,9 +127,9 @@ userRutas.post("/cambiar-password", function (req, res) {
                                 }).catch(error => {
                                     console.log(error);
                                     res.send({ estado: "error", msg: "ERROR: No se pudo actualizar la contraseña!!!" });
-                                })        
+                                })
                             } else {
-                                return res.send({ estado: "error", msg: "ERROR: Por favor ingrese una contraseña que no haya utilizado antes!!!"})
+                                return res.send({ estado: "error", msg: "ERROR: Por favor ingrese una contraseña que no haya utilizado antes!!!" })
                             }
                         })
                     } else {
