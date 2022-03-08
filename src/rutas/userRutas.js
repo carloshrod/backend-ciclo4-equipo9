@@ -84,17 +84,39 @@ userRutas.post("/actualizar-user-int", function (req, res) {
     const { nro_doc, accion } = req.body
     userModel.findOne({ nro_doc: nro_doc })
         .then(user => {
-            if (accion === "crear") {
-                user.created_users += 1
+            const crear = () => {
+                if (accion === "crear") {
+                    return user.created_users += 1
+                } else {
+                    return user.created_users
+                }
             }
-            if (accion === "editar") {
-                user.edited_users += 1
+            const editar = () => {
+                if (accion === "editar") {
+                    return user.edited_users += 1
+                } else {
+                    return user.edited_users
+                }
             }
-            if (accion === "borrar") {
-                user.deleted_users += 1
+            const borrar = () => {
+                if (accion === "borrar") {
+                    return user.deleted_users += 1
+                } else {
+                    return user.deleted_users
+                }
             }
-            user.save().then((user) => {
-                return res.status(200).send({ data: user })
+            user.updateOne({
+                $set: {
+                    created_users: crear(),
+                    edited_users: editar(),
+                    deleted_users: borrar()
+                }
+            }, function (error) {
+                console.log(error)
+                if (error) {
+                    return res.send({ estado: "error", msg: "ERROR: El usuario no pudo ser editado!!!" });
+                }
+                return res.status(200).send({ estado: "ok", msg: "El usuario fue editado exitosamente!!!", data: user })
             })
         })
 })
