@@ -52,13 +52,13 @@ const userSchema = new Schema({
     expire_token:{
         type:"date",
     },
-    created_users:{
+    created_predios:{
         type:"number"
     },
-    edited_users:{
+    edited_predios:{
         type:"number"
     },
-    deleted_users:{
+    deleted_predios:{
         type:"number"
     }
 });

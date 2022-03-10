@@ -31,15 +31,11 @@ userRutas.post("/guardar", upload.single("avatar"), authMid, function (req, res)
     const name = data.nombres;
     const password = data.password;
     const user = new userModel(data);
-    console.log(data)
-
     if (req.file) {
         const { filename } = req.file
         user.setImgUrl(filename)
     }
-
-    user.save(function (error) {
-        console.log(error)
+    user.save((error) => {
         if (error) {
             return res.send({ estado: "error", msg: "ERROR: El usuario no pudo ser creado!!!" });
         }
@@ -55,9 +51,7 @@ userRutas.post("/guardar", upload.single("avatar"), authMid, function (req, res)
 userRutas.post("/registro", function (req, res) {
     const data = req.body;
     const user = new userModel(data);
-    console.log(data)
-    user.save(function (error) {
-        console.log(error)
+    user.save((error) => {
         if (error) {
             return res.send({ estado: "error", msg: "ERROR: Su cuenta no pudo ser creada. Intentelo más tarde!!!" });
         }
@@ -68,11 +62,9 @@ userRutas.post("/registro", function (req, res) {
 userRutas.post("/editar", authMid, function (req, res) {
     const data = req.body;
     const user = new userModel(data);
-    console.log(data)
     user.updateOne({
         $set: req.body
-    }, function (error) {
-        console.log(error)
+    }, (error) => {
         if (error) {
             return res.send({ estado: "error", msg: "ERROR: El usuario no pudo ser editado!!!" });
         }
@@ -80,52 +72,11 @@ userRutas.post("/editar", authMid, function (req, res) {
     })
 });
 
-userRutas.post("/actualizar-user-int", function (req, res) {
-    const { nro_doc, accion } = req.body
-    userModel.findOne({ nro_doc: nro_doc })
-        .then(user => {
-            const crear = () => {
-                if (accion === "crear") {
-                    return user.created_users += 1
-                } else {
-                    return user.created_users
-                }
-            }
-            const editar = () => {
-                if (accion === "editar") {
-                    return user.edited_users += 1
-                } else {
-                    return user.edited_users
-                }
-            }
-            const borrar = () => {
-                if (accion === "borrar") {
-                    return user.deleted_users += 1
-                } else {
-                    return user.deleted_users
-                }
-            }
-            user.updateOne({
-                $set: {
-                    created_users: crear(),
-                    edited_users: editar(),
-                    deleted_users: borrar()
-                }
-            }, function (error) {
-                console.log(error)
-                if (error) {
-                    return res.send({ estado: "error", msg: "ERROR: El usuario no pudo ser editado!!!" });
-                }
-                return res.status(200).send({ estado: "ok", msg: "El usuario fue editado exitosamente!!!", data: user })
-            })
-        })
-})
-
 userRutas.delete("/eliminar/:nro_doc", authMid, function (req, res) {
     //Capturar los datos que vienen del cliente
     const i = req.params.nro_doc;
     //Buscar por nombre de producto en 'BD'
-    userModel.findOneAndDelete({ nro_doc: i }, (error, resp) => {
+    userModel.findOneAndDelete({ nro_doc: i }, (error) => {
         if (error) {
             return res.send({ estado: "error", msg: "ERROR: El usuario no pudo ser eliminado!!!" })
         }
@@ -134,8 +85,10 @@ userRutas.delete("/eliminar/:nro_doc", authMid, function (req, res) {
 })
 
 userRutas.post("/cambiar-password", function (req, res) {
-    const { nro_doc, currentPassword, newPassword } = req.body;
-    userModel.findOne({ nro_doc })
+    const { currentPassword, newPassword } = req.body;
+    const token = req.headers.authorization.split(' ')[1];
+    const payload = verify(token, process.env.JWT_SECRET_KEY);
+    userModel.findOne({ nro_doc: payload.nro_doc })
         .then(user => {
             compare(currentPassword, user.password)
                 .then(passOK => {
@@ -143,8 +96,7 @@ userRutas.post("/cambiar-password", function (req, res) {
                         compare(newPassword, user.password).then(newPassOK => {
                             if (!newPassOK) {
                                 user.password = newPassword
-                                user.save().then(savedUser => {
-                                    console.log(savedUser);
+                                user.save().then((savedUser) => {
                                     res.status(200).send({ estado: "ok", msg: "Contraseña actualizada con éxito. Por favor, inicie sesión nuevamente!!!" })
                                 }).catch(error => {
                                     console.log(error);
@@ -174,7 +126,7 @@ userRutas.post("/reset-password", function (req, res) {
                 }
                 user.reset_token = token
                 user.expire_token = Date.now() + 3600000
-                user.save().then((result) => {
+                user.save().then((savedUser) => {
                     const toEmail = user.email
                     const name = user.nombres
                     const resetToken = user.reset_token
@@ -186,7 +138,6 @@ userRutas.post("/reset-password", function (req, res) {
 })
 
 userRutas.post("/new-password", function (req, res) {
-    console.log(req.body);
     const { newPassword, sentToken } = req.body
     userModel.findOne({ reset_token: sentToken, expire_token: { $gt: Date.now() } })
         .then(user => {
@@ -196,8 +147,7 @@ userRutas.post("/new-password", function (req, res) {
             user.password = newPassword
             user.reset_token = undefined
             user.expire_token = undefined
-            user.save().then(savedUser => {
-                console.log(savedUser);
+            user.save().then((savedUser) => {
                 res.status(200).send({ estado: "ok", msg: "Contraseña restablecida con éxito!!!" })
             }).catch(error => {
                 console.log(error);
@@ -210,13 +160,10 @@ userRutas.post("/login", async function (req, res) {
     try {
         const { email, password } = req.body;
         const user = await userModel.findOne({ email });
-        console.log(user);
         if (!user) {
             return res.send({ estado: "error", msg: "Credenciales NO válidas. Intentelo de nuevo!!!" });
         }
-        console.log(password + " - " + user.password);
         const passOK = await compare(password, user.password);
-        console.log(passOK);
         if (passOK) {
             const token = sign(
                 {
