@@ -10,9 +10,7 @@ const { transporter } = require('../config/mailer');
 const { newUserOptions, resetPasswordOptions } = require('../config/emailOptions');
 
 userRutas.get("/listar", function (req, res) {
-    // Busca el producto en la BD
     userModel.find({}, function (error, user) {
-        // Si hubo error
         if (error) {
             return res.status(401).send({ estado: "error", msg: "Usuarios NO encontrados" })
         } else {
@@ -43,7 +41,7 @@ userRutas.post("/guardar", upload.single("avatar"), authMid, function (req, res)
             transporter.sendMail(newUserOptions(toEmail, name, password))
             return res.status(200).send({ estado: "ok", msg: "El usuario fue creado exitosamente!!!", data: user })
         } catch (error) {
-            return res.send({ estado: "error", msg: "Ingrese un correo válido!!!" });
+            return res.send({ estado: "error", msg: "ERROR: Ingrese un correo válido!!!" });
         }
     })
 });
@@ -73,14 +71,19 @@ userRutas.post("/editar", authMid, function (req, res) {
 });
 
 userRutas.delete("/eliminar/:nro_doc", authMid, function (req, res) {
-    //Capturar los datos que vienen del cliente
-    const i = req.params.nro_doc;
-    //Buscar por nombre de producto en 'BD'
-    userModel.findOneAndDelete({ nro_doc: i }, (error) => {
-        if (error) {
-            return res.send({ estado: "error", msg: "ERROR: El usuario no pudo ser eliminado!!!" })
-        }
-        return res.status(200).send({ estado: "ok", msg: "El usuario fue eliminado exitosamente!!!" })
+    const nro_doc = req.params.nro_doc;
+    userModel.findOne({ nro_doc }).then((user) => {
+        user.estado = null
+        user.updateOne({
+            $set: {
+                estado: user.estado
+            }
+        }, (error) => {
+            if (error) {
+                return res.send({ estado: "error", msg: "ERROR: El usuario no pudo ser eliminado!!!" })
+            }
+            return res.status(200).send({ estado: "ok", msg: "El usuario fue eliminado exitosamente!!!" })
+        })
     })
 })
 

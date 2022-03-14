@@ -3,36 +3,51 @@ const { authPrediosMid } = require('../middlewares/authPrediosMid');
 const predioRutas = Router();
 const { predioModel } = require('../modelos/predioModel');
 const { userModel } = require('../modelos/userModel');
+const { historialModel } = require('../modelos/historialModel');
 const { verify } = require("jsonwebtoken");
 
 predioRutas.get("/listar", function (req, res) {
-    // Busca el producto en la BD
-    predioModel.find({}, function (error, predio) {
-        // Si hubo error
+    predioModel.find({ estado: 1 }, function (error, predio) {
         if (error) {
             res.send({ estado: "error", msg: "Predios NO encontrado" })
-            return false;
+            return false
         } else {
-            if (predio !== null) {
-                res.send({ estado: "ok", msg: "Predios Visualizados", data: predio })
-            } else {
-                res.send({ estado: "error", msg: "Predios NO encontrado" })
-            }
+            historialModel.find({}, function (error, historial) {
+                if (error) {
+                    console.log(error)
+                    return false
+                }
+                if (predio !== null) {
+                    res.send({ estado: "ok", msg: "Predios Visualizados", data1: predio, data2: historial })
+                } else {
+                    res.send({ estado: "error", msg: "Predios NO encontrado" })
+                }
+            })
         }
     })
 })
 
 predioRutas.post("/guardar", authPrediosMid, function (req, res) {
     const data = req.body;
-    const predio = new predioModel(data);
-    const token = req.headers.authorization.split(' ')[1];
-    const payload = verify(token, process.env.JWT_SECRET_KEY);
+    const predio = new predioModel(data)
+    const token = req.headers.authorization.split(' ')[1]
+    const payload = verify(token, process.env.JWT_SECRET_KEY)
     predio.save((error) => {
         if (error) {
-            return res.send({ estado: "error", msg: "ERROR: El predio no pudo ser creado!!!" });
+            return res.send({ estado: "error", msg: "ERROR: El predio no pudo ser creado!!!" })
         } else {
             userModel.findOne({ nro_doc: payload.nro_doc })
                 .then((user) => {
+                    const historial = new historialModel()
+                    historial.author = user.nombres
+                    historial.action = "creó"
+                    historial.fecha = Date.now()
+                    historial.code = data.codigo
+                    historial.save((error) => {
+                        if (error) {
+                            console.log(error)
+                        }
+                    })
                     user.created_predios += 1
                     user.updateOne({
                         $set: {
@@ -42,7 +57,7 @@ predioRutas.post("/guardar", authPrediosMid, function (req, res) {
                         if (error) {
                             console.log(error)
                         }
-                        return res.status(200).send({ estado: "ok", msg: "El predio fue creado exitosamente!!!", data1: predio, data2: user })
+                        return res.status(200).send({ estado: "ok", msg: "El predio fue creado exitosamente!!!", data1: predio, data2: user, data3: historial })
                     })
                 })
         }
@@ -52,8 +67,8 @@ predioRutas.post("/guardar", authPrediosMid, function (req, res) {
 predioRutas.post("/editar", authPrediosMid, function (req, res) {
     const data = req.body;
     const predio = new predioModel(data);
-    const token = req.headers.authorization.split(' ')[1];
-    const payload = verify(token, process.env.JWT_SECRET_KEY);
+    const token = req.headers.authorization.split(' ')[1]
+    const payload = verify(token, process.env.JWT_SECRET_KEY)
     predio.updateOne({
         $set: req.body
     }, (error) => {
@@ -62,6 +77,16 @@ predioRutas.post("/editar", authPrediosMid, function (req, res) {
         } else {
             userModel.findOne({ nro_doc: payload.nro_doc })
                 .then((user) => {
+                    const historial = new historialModel()
+                    historial.author = user.nombres
+                    historial.action = "editó"
+                    historial.fecha = Date.now()
+                    historial.code = data.codigo
+                    historial.save((error) => {
+                        if (error) {
+                            console.log(error)
+                        }
+                    })
                     user.edited_predios += 1
                     user.updateOne({
                         $set: {
@@ -71,7 +96,7 @@ predioRutas.post("/editar", authPrediosMid, function (req, res) {
                         if (error) {
                             console.log(error)
                         }
-                        return res.status(200).send({ estado: "ok", msg: "El predio fue editado exitosamente!!!", data: user })
+                        return res.status(200).send({ estado: "ok", msg: "El predio fue editado exitosamente!!!", data1: user, data2: historial })
                     })
                 })
         }
@@ -79,28 +104,45 @@ predioRutas.post("/editar", authPrediosMid, function (req, res) {
 });
 
 predioRutas.post("/eliminar/:codigo", authPrediosMid, function (req, res) {
-    const i = req.params.codigo;
-    const token = req.headers.authorization.split(' ')[1];
-    const payload = verify(token, process.env.JWT_SECRET_KEY);
-    predioModel.findOneAndDelete({ codigo: i }, (error) => {
-        if (error) {
-            return res.send({ estado: "error", msg: "ERROR: El predio no pudo ser eliminado!!!" })
-        } else {
-            userModel.findOne({ nro_doc: payload.nro_doc })
-                .then((user) => {
-                    user.deleted_predios += 1
-                    user.updateOne({
-                        $set: {
-                            deleted_predios: user.deleted_predios
-                        }
-                    }, (error) => {
-                        if (error) {
-                            console.log(error)
-                        }
-                        return res.status(200).send({ estado: "ok", msg: "El predio fue eliminado exitosamente!!!", data: user })
+    const codigo = req.params.codigo;
+    const token = req.headers.authorization.split(' ')[1]
+    const payload = verify(token, process.env.JWT_SECRET_KEY)
+    predioModel.findOne({ codigo }).then((predio) => {
+        predio.estado = null
+        predio.updateOne({
+            $set: {
+                estado: predio.estado
+            }
+        }, (error) => {
+            if (error) {
+                return res.send({ estado: "error", msg: "ERROR: El predio no pudo ser eliminado!!!" })
+            } else {
+                userModel.findOne({ nro_doc: payload.nro_doc })
+                    .then((user) => {
+                        const historial = new historialModel()
+                        historial.author = user.nombres
+                        historial.action = "eliminó"
+                        historial.fecha = Date.now()
+                        historial.code = codigo
+                        historial.save((error) => {
+                            if (error) {
+                                console.log(error)
+                            }
+                        })
+                        user.deleted_predios += 1
+                        user.updateOne({
+                            $set: {
+                                deleted_predios: user.deleted_predios
+                            }
+                        }, (error) => {
+                            if (error) {
+                                console.log(error)
+                            }
+                            return res.status(200).send({ estado: "ok", msg: "El predio fue eliminado exitosamente!!!", data1: user, data2: historial })
+                        })
                     })
-                })
-        }
+            }
+        })
     })
 })
 
