@@ -2,22 +2,23 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const historialSchema = new Schema({
-    author:{
-        type:"string",
+    author: {
+        type: "string",
     },
-    id_author:{
-        type:"number",
+    id_author: {
+        type: "number",
     },
-    action:{
-        type:"string"
+    action: {
+        type: "string"
     },
-    fecha:{
-        type:"date",
+    fecha: {
+        type: "date",
+        default: Date.now()
     },
-    code:{
-        type:"string"
+    code: {
+        type: "string"
     }
 })
 
-const historialModel = mongoose.model("historials",historialSchema);
+const historialModel = mongoose.model("historials", historialSchema);
 exports.historialModel = historialModel;

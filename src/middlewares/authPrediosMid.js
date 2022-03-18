@@ -12,7 +12,6 @@ const authPrediosMid = (req, res, next) => {
         const token = authorization.split(' ')[1];
         //Obtiene la carga útil 
         const payload = verify(token, process.env.JWT_SECRET_KEY);
-        console.log(payload)
         // Verifica el Rol de usuario
         if (payload.rol === 3) {
             return res.json({ estado: "error", msg: "No estás autorizado para realizar esta acción!!!" });

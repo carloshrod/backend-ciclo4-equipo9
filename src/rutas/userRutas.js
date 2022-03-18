@@ -2,7 +2,7 @@ const { Router } = require('express');
 const userRutas = Router();
 const { userModel } = require('../modelos/userModel');
 const { compare } = require('bcryptjs');
-const { sign } = require('jsonwebtoken');
+const { sign, verify } = require('jsonwebtoken');
 const { authMid } = require('../middlewares/authMid');
 const upload = require('../libs/storage');
 const crypto = require('crypto');
@@ -10,7 +10,7 @@ const { transporter } = require('../config/mailer');
 const { newUserOptions, resetPasswordOptions } = require('../config/emailOptions');
 
 userRutas.get("/listar", function (req, res) {
-    userModel.find({}, function (error, user) {
+    userModel.find({ estado: 1 }, function (error, user) {
         if (error) {
             return res.status(401).send({ estado: "error", msg: "Usuarios NO encontrados" })
         } else {
@@ -25,21 +25,20 @@ userRutas.get("/listar", function (req, res) {
 
 userRutas.post("/guardar", upload.single("avatar"), authMid, function (req, res) {
     const data = req.body;
-    const toEmail = data.email;
-    const name = data.nombres;
-    const password = data.password;
+    const { email, nombres, password } = req.body;
     const user = new userModel(data);
     if (req.file) {
         const { filename } = req.file
         user.setImgUrl(filename)
     }
     user.save((error) => {
+        console.log("Error: " + error)
         if (error) {
             return res.send({ estado: "error", msg: "ERROR: El usuario no pudo ser creado!!!" });
         }
         try {
-            transporter.sendMail(newUserOptions(toEmail, name, password))
-            return res.status(200).send({ estado: "ok", msg: "El usuario fue creado exitosamente!!!", data: user })
+            transporter.sendMail(newUserOptions(email, nombres, password))
+            return res.status(200).send({ estado: "ok", msg: "El usuario fue creado exitosamente!!!", user: user })
         } catch (error) {
             return res.send({ estado: "error", msg: "ERROR: Ingrese un correo válido!!!" });
         }
@@ -57,16 +56,25 @@ userRutas.post("/registro", function (req, res) {
     })
 });
 
-userRutas.post("/editar", authMid, function (req, res) {
+userRutas.post("/editar", upload.single("avatar"), authMid, function (req, res) {
     const data = req.body;
-    const user = new userModel(data);
-    user.updateOne({
-        $set: req.body
+    if (req.file) {
+        const user = new userModel(data);
+        const { filename } = req.file
+        user.setImgUrl(filename)
+        data.imgUrl = user.imgUrl
+    }
+    userModel.updateOne({ nro_doc: data.nro_doc }, {
+        $set: data
     }, (error) => {
+        console.log("Error: " + error)
         if (error) {
             return res.send({ estado: "error", msg: "ERROR: El usuario no pudo ser editado!!!" });
+        } else {
+            userModel.findOne({ nro_doc: data.nro_doc }).then((user) => {
+                return res.status(200).send({ estado: "ok", msg: "El usuario fue editado exitosamente!!!", user: user })
+            })
         }
-        return res.status(200).send({ estado: "ok", msg: "El usuario fue editado exitosamente!!!", data: user })
     })
 });
 
@@ -102,7 +110,7 @@ userRutas.post("/cambiar-password", function (req, res) {
                                 user.save().then((savedUser) => {
                                     res.status(200).send({ estado: "ok", msg: "Contraseña actualizada con éxito. Por favor, inicie sesión nuevamente!!!" })
                                 }).catch(error => {
-                                    console.log(error);
+                                    console.log("Error: " + error);
                                     res.send({ estado: "error", msg: "ERROR: No se pudo actualizar la contraseña!!!" });
                                 })
                             } else {
@@ -153,7 +161,7 @@ userRutas.post("/new-password", function (req, res) {
             user.save().then((savedUser) => {
                 res.status(200).send({ estado: "ok", msg: "Contraseña restablecida con éxito!!!" })
             }).catch(error => {
-                console.log(error);
+                console.log("Error: " + error);
                 res.send({ estado: "error", msg: "ERROR: No se pudo actualizar la contraseña" });
             })
         })
@@ -175,7 +183,8 @@ userRutas.post("/login", async function (req, res) {
                     nro_doc: user.nro_doc,
                     direccion: user.direccion,
                     telefono: user.telefono,
-                    rol: user.rol
+                    rol: user.rol,
+                    avatar: user.imgUrl
                 },
                 process.env.JWT_SECRET_KEY,
                 { expiresIn: '6h' }

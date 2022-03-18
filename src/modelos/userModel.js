@@ -64,7 +64,7 @@ const userSchema = new Schema({
 });
 
 userSchema.methods.setImgUrl = function setImgUrl(filename) {
-    this.imgUrl = `http://localhost:8080/public/${filename}`
+    this.imgUrl = `${process.env.HOST}${process.env.PORT}/${filename}`
 }
 
 userSchema.pre("save", async function(next){

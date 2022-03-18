@@ -14,7 +14,7 @@ predioRutas.get("/listar", function (req, res) {
         } else {
             historialModel.find({}, function (error, historial) {
                 if (error) {
-                    console.log(error)
+                    console.log("Error: " + error)
                     return false
                 }
                 if (predio !== null) {
@@ -41,11 +41,10 @@ predioRutas.post("/guardar", authPrediosMid, function (req, res) {
                     const historial = new historialModel()
                     historial.author = user.nombres
                     historial.action = "creó"
-                    historial.fecha = Date.now()
                     historial.code = data.codigo
                     historial.save((error) => {
                         if (error) {
-                            console.log(error)
+                            console.log("Error: " + error)
                         }
                     })
                     user.created_predios += 1
@@ -55,7 +54,7 @@ predioRutas.post("/guardar", authPrediosMid, function (req, res) {
                         }
                     }, (error) => {
                         if (error) {
-                            console.log(error)
+                            console.log("Error: " + error)
                         }
                         return res.status(200).send({ estado: "ok", msg: "El predio fue creado exitosamente!!!", data1: predio, data2: user, data3: historial })
                     })
@@ -80,11 +79,10 @@ predioRutas.post("/editar", authPrediosMid, function (req, res) {
                     const historial = new historialModel()
                     historial.author = user.nombres
                     historial.action = "editó"
-                    historial.fecha = Date.now()
                     historial.code = data.codigo
                     historial.save((error) => {
                         if (error) {
-                            console.log(error)
+                            console.log("Error: " + error)
                         }
                     })
                     user.edited_predios += 1
@@ -94,7 +92,7 @@ predioRutas.post("/editar", authPrediosMid, function (req, res) {
                         }
                     }, (error) => {
                         if (error) {
-                            console.log(error)
+                            console.log("Error: " + error)
                         }
                         return res.status(200).send({ estado: "ok", msg: "El predio fue editado exitosamente!!!", data1: user, data2: historial })
                     })
@@ -122,11 +120,10 @@ predioRutas.post("/eliminar/:codigo", authPrediosMid, function (req, res) {
                         const historial = new historialModel()
                         historial.author = user.nombres
                         historial.action = "eliminó"
-                        historial.fecha = Date.now()
                         historial.code = codigo
                         historial.save((error) => {
                             if (error) {
-                                console.log(error)
+                                console.log("Error: " + error)
                             }
                         })
                         user.deleted_predios += 1
@@ -136,7 +133,7 @@ predioRutas.post("/eliminar/:codigo", authPrediosMid, function (req, res) {
                             }
                         }, (error) => {
                             if (error) {
-                                console.log(error)
+                                console.log("Error: " + error)
                             }
                             return res.status(200).send({ estado: "ok", msg: "El predio fue eliminado exitosamente!!!", data1: user, data2: historial })
                         })
