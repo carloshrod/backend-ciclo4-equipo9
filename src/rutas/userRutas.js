@@ -56,7 +56,7 @@ userRutas.post("/registro", function (req, res) {
     })
 });
 
-userRutas.post("/editar", upload.single("avatar"), authMid, function (req, res) {
+userRutas.post("/editar", upload.single("avatar"), function (req, res) {
     const data = req.body;
     if (req.file) {
         const user = new userModel(data);
