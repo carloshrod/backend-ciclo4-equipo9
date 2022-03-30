@@ -8,6 +8,7 @@ const upload = require('../libs/storage');
 const crypto = require('crypto');
 const { transporter } = require('../config/mailer');
 const { newUserOptions, resetPasswordOptions } = require('../config/emailOptions');
+const fs = require("fs")
 
 userRutas.get("/listar", function (req, res) {
     userModel.find({ estado: 1 }, function (error, user) {
@@ -60,6 +61,14 @@ userRutas.post("/editar", upload.single("avatar"), function (req, res) {
     const data = req.body;
     if (req.file) {
         const user = new userModel(data);
+        userModel.findOne({ nro_doc: data.nro_doc }).then((foundUser) => {
+            console.log(foundUser)
+            if (foundUser.imgUrl) {
+                console.log(foundUser.imgUrl.replace("http://192.168.1.65:8080/", ''))
+                const fileToDelete = foundUser.imgUrl.replace("http://192.168.1.65:8080/", '')
+                if (fs.existsSync(`./src/storage/imgs/${fileToDelete}`)) fs.unlinkSync(`./src/storage/imgs/${fileToDelete}`)
+            }
+        })
         const { filename } = req.file
         user.setImgUrl(filename)
         data.imgUrl = user.imgUrl
@@ -93,6 +102,29 @@ userRutas.delete("/eliminar/:nro_doc", authMid, function (req, res) {
             return res.status(200).send({ estado: "ok", msg: "El usuario fue eliminado exitosamente!!!" })
         })
     })
+})
+
+userRutas.delete("/eliminar-avatar/:nro_doc", function (req, res) {
+    const nro_doc = req.params.nro_doc;
+    userModel.findOne({ nro_doc }).then((user) => {
+        console.log(user)
+        if (user.imgUrl) {
+            const fileToDelete = user.imgUrl.replace("http://192.168.1.65:8080/", '')
+            if (fs.existsSync(`./src/storage/imgs/${fileToDelete}`)) fs.unlinkSync(`./src/storage/imgs/${fileToDelete}`)
+        }
+        user.imgUrl = ""
+        user.updateOne({
+            $set: {
+                imgUrl: user.imgUrl
+            }
+        }, (error) => {
+            console.log(error)
+            if (error) {
+                return res.send({ estado: "error", msg: "ERROR: La imágen de perfil no pudo ser eliminada!!!" })
+            }
+            return res.status(200).send({ estado: "ok", msg: "La imágen de perfil fue eliminada exitosamente!!!", user: user })
+        })   
+    })    
 })
 
 userRutas.post("/cambiar-password", function (req, res) {
