@@ -9,18 +9,18 @@ const { verify } = require("jsonwebtoken");
 predioRutas.get("/listar", function (req, res) {
     predioModel.find({ estado: 1 }, function (error, predio) {
         if (error) {
-            res.send({ estado: "error", msg: "Predios NO encontrado" })
-            return false
+            console.log("Error listando predios: " + error)
+            return res.send({ estado: "error", msg: "Predios NO encontrado" })
         } else {
             historialModel.find({}, function (error, historial) {
                 if (error) {
-                    console.log("Error: " + error)
+                    console.log("Error listando historial: " + error)
                     return false
                 }
                 if (predio !== null) {
-                    res.send({ estado: "ok", msg: "Predios Visualizados", data1: predio, data2: historial })
+                    return res.send({ estado: "ok", msg: "Predios Visualizados", data1: predio, data2: historial })
                 } else {
-                    res.send({ estado: "error", msg: "Predios NO encontrado" })
+                    return res.send({ estado: "error", msg: "Predios NO encontrado" })
                 }
             })
         }
@@ -34,6 +34,7 @@ predioRutas.post("/guardar", authPrediosMid, function (req, res) {
     const payload = verify(token, process.env.JWT_SECRET_KEY)
     predio.save((error) => {
         if (error) {
+            console.log("Error creando predio: " + error)
             return res.send({ estado: "error", msg: "ERROR: El predio no pudo ser creado!!!" })
         } else {
             userModel.findOne({ nro_doc: payload.nro_doc })
@@ -44,7 +45,7 @@ predioRutas.post("/guardar", authPrediosMid, function (req, res) {
                     historial.code = data.codigo
                     historial.save((error) => {
                         if (error) {
-                            console.log("Error: " + error)
+                            console.log("Error guardando historial: " + error)
                         }
                     })
                     user.created_predios += 1
@@ -54,7 +55,7 @@ predioRutas.post("/guardar", authPrediosMid, function (req, res) {
                         }
                     }, (error) => {
                         if (error) {
-                            console.log("Error: " + error)
+                            console.log("Error actualizando created_predios: " + error)
                         }
                         return res.status(200).send({ estado: "ok", msg: "El predio fue creado exitosamente!!!", data1: predio, data2: user, data3: historial })
                     })
@@ -72,6 +73,7 @@ predioRutas.post("/editar", authPrediosMid, function (req, res) {
         $set: req.body
     }, (error) => {
         if (error) {
+            console.log("Error editando predio: " + error)
             return res.send({ estado: "error", msg: "ERROR: El predio no pudo ser editado!!!" });
         } else {
             userModel.findOne({ nro_doc: payload.nro_doc })
@@ -82,7 +84,7 @@ predioRutas.post("/editar", authPrediosMid, function (req, res) {
                     historial.code = data.codigo
                     historial.save((error) => {
                         if (error) {
-                            console.log("Error: " + error)
+                            console.log("Error guardando historial: " + error)
                         }
                     })
                     user.edited_predios += 1
@@ -92,7 +94,7 @@ predioRutas.post("/editar", authPrediosMid, function (req, res) {
                         }
                     }, (error) => {
                         if (error) {
-                            console.log("Error: " + error)
+                            console.log("Error actualizando edited_predios: " + error)
                         }
                         return res.status(200).send({ estado: "ok", msg: "El predio fue editado exitosamente!!!", data1: user, data2: historial })
                     })
@@ -113,6 +115,7 @@ predioRutas.post("/eliminar/:codigo", authPrediosMid, function (req, res) {
             }
         }, (error) => {
             if (error) {
+                console.log("Error eliminando predio: " + error)
                 return res.send({ estado: "error", msg: "ERROR: El predio no pudo ser eliminado!!!" })
             } else {
                 userModel.findOne({ nro_doc: payload.nro_doc })
@@ -123,7 +126,7 @@ predioRutas.post("/eliminar/:codigo", authPrediosMid, function (req, res) {
                         historial.code = codigo
                         historial.save((error) => {
                             if (error) {
-                                console.log("Error: " + error)
+                                console.log("Error guardando historial: " + error)
                             }
                         })
                         user.deleted_predios += 1
@@ -133,7 +136,7 @@ predioRutas.post("/eliminar/:codigo", authPrediosMid, function (req, res) {
                             }
                         }, (error) => {
                             if (error) {
-                                console.log("Error: " + error)
+                                console.log("Error actualizando deleted_predios: " + error)
                             }
                             return res.status(200).send({ estado: "ok", msg: "El predio fue eliminado exitosamente!!!", data1: user, data2: historial })
                         })
@@ -151,13 +154,14 @@ predioRutas.get("/consultar/:doc_prop", function (req, res) {
     predioModel.find({ doc_prop: i }, (error, predio) => {
         // Si hubo error
         if (error) {
-            res.send({ estado: "error", msg: "Predio NO encontrado" })
+            console.log("Error consultando predios: " + error)
+            res.send({ estado: "error", msg: "Predios NO encontrados" })
             return false;
         } else {
             if (predio !== null) {
-                res.send({ estado: "ok", msg: "Predio Encontrado", data: predio })
+                res.send({ estado: "ok", msg: "Predios Encontrados", data: predio })
             } else {
-                res.send({ estado: "error", msg: "Predio NO encontrado" })
+                res.send({ estado: "error", msg: "Predios NO encontrados" })
             }
         }
     })
@@ -170,6 +174,7 @@ predioRutas.get("/consultar-uno/:codigo", function (req, res) {
     predioModel.findOne({ codigo: i }, (error, predio) => {
         // Si hubo error
         if (error) {
+            console.log("Error consultando predio: " + error)
             res.send({ estado: "error", msg: "Predio NO encontrado" })
             return false;
         } else {
