@@ -2,60 +2,60 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const predioSchema = new Schema({
-    codigo:{
-        type:"string",
-        required:true,
-        unique:true
+    codigo: {
+        type: String,
+        required: true,
+        unique: true
     },
-    nom_prop:{
-        type:"string",
-        required:true
+    nom_prop: {
+        type: String,
+        required: true
     },
-    doc_prop:{
-        type:"number",
-        required:true,
+    doc_prop: {
+        type: Number,
+        required: true
     },
-    area_c:{
-        type:"string",
-        required:true
+    email_prop: {
+        type: String,
+        required: true
     },
-    area_t:{
-        type:"string",
-        required:true
+    area_c: {
+        type: String,
+        required: true
     },
-    direccion_predio:{
-        type:"string",
-        required:true,
-        unique:true
+    area_t: {
+        type: String,
+        required: true
     },
-    barrio:{
-        type:"string",
-        required:true
+    direccion_predio: {
+        type: String,
+        required: true,
+        unique: true
     },
-    fecha_pago:{
-        type:"string",
+    barrio: {
+        type: String,
+        required: true
     },
-    fecha_pago2:{
-        type:"string",
+    fecha_pago: {
+        type: String,
     },
-    fecha_pago3:{
-        type:"string",
+    fecha_pago2: {
+        type: String,
     },
-    valor_predio:{
-        type:"string",
-        required:true
+    fecha_pago3: {
+        type: String,
     },
-    valor_predial:{
-        type:"number",
+    valor_predio: {
+        type: String,
+        required: true
     },
-    // asociado:{
-    //     type:"number",
-    //     default: 1
-    // },
-    estado:{
-        type:"number",
+    valor_predial: {
+        type: String,
+    },
+    estado: {
+        type: Number,
     }
 })
 
-const predioModel = mongoose.model("predios",predioSchema);
+const predioModel = mongoose.model("predios", predioSchema);
 exports.predioModel = predioModel;

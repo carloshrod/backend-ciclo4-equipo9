@@ -3,20 +3,19 @@ const Schema = mongoose.Schema;
 
 const historialSchema = new Schema({
     author: {
-        type: "string",
+        type: String
     },
     id_author: {
-        type: "number",
+        type: Number
     },
     action: {
-        type: "string"
+        type: String
     },
     fecha: {
-        type: "date",
-        default: Date.now()
+        type: Date
     },
     code: {
-        type: "string"
+        type: String
     }
 })
 

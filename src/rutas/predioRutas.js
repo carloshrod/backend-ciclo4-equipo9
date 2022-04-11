@@ -6,27 +6,39 @@ const { userModel } = require('../modelos/userModel');
 const { historialModel } = require('../modelos/historialModel');
 const { verify } = require("jsonwebtoken");
 
+// Listar predios:
 predioRutas.get("/listar", function (req, res) {
     predioModel.find({ estado: 1 }, function (error, predio) {
         if (error) {
             console.log("Error listando predios: " + error)
             return res.send({ estado: "error", msg: "Predios NO encontrado" })
         } else {
-            historialModel.find({}, function (error, historial) {
-                if (error) {
-                    console.log("Error listando historial: " + error)
-                    return false
-                }
-                if (predio !== null) {
-                    return res.send({ estado: "ok", msg: "Predios Visualizados", data1: predio, data2: historial })
-                } else {
-                    return res.send({ estado: "error", msg: "Predios NO encontrado" })
-                }
-            })
+            if (predio !== null) {
+                return res.status(200).send({ estado: "ok", msg: "Predios Visualizados", data: predio })
+            } else {
+                return res.send({ estado: "error", msg: "Predios NO encontrado" })
+            }
         }
     })
 })
 
+// Listar historial de predios:
+predioRutas.get("/historial", function (req, res) {
+    historialModel.find({}, function (error, historial) {
+        if (error) {
+            console.log("Error listando historial: " + error)
+            return false
+        } else {
+            if (historial !== null) {
+                return res.send({ estado: "ok", msg: "Predios Visualizados", data: historial })
+            } else {
+                return res.send({ estado: "error", msg: "Predios NO encontrado" })
+            }
+        }
+    })
+})
+
+// Guardar predios:
 predioRutas.post("/guardar", authPrediosMid, function (req, res) {
     const data = req.body;
     const predio = new predioModel(data)
@@ -42,6 +54,7 @@ predioRutas.post("/guardar", authPrediosMid, function (req, res) {
                     const historial = new historialModel()
                     historial.author = user.nombres
                     historial.action = "creó"
+                    historial.fecha = Date.now()
                     historial.code = data.codigo
                     historial.save((error) => {
                         if (error) {
@@ -64,6 +77,7 @@ predioRutas.post("/guardar", authPrediosMid, function (req, res) {
     })
 });
 
+// Editar predios:
 predioRutas.post("/editar", authPrediosMid, function (req, res) {
     const data = req.body;
     const predio = new predioModel(data);
@@ -81,6 +95,7 @@ predioRutas.post("/editar", authPrediosMid, function (req, res) {
                     const historial = new historialModel()
                     historial.author = user.nombres
                     historial.action = "editó"
+                    historial.fecha = Date.now()
                     historial.code = data.codigo
                     historial.save((error) => {
                         if (error) {
@@ -103,6 +118,7 @@ predioRutas.post("/editar", authPrediosMid, function (req, res) {
     })
 });
 
+// Eliminar predios:
 predioRutas.post("/eliminar/:codigo", authPrediosMid, function (req, res) {
     const codigo = req.params.codigo;
     const token = req.headers.authorization.split(' ')[1]
@@ -123,6 +139,7 @@ predioRutas.post("/eliminar/:codigo", authPrediosMid, function (req, res) {
                         const historial = new historialModel()
                         historial.author = user.nombres
                         historial.action = "eliminó"
+                        historial.fecha = Date.now()
                         historial.code = codigo
                         historial.save((error) => {
                             if (error) {
@@ -146,81 +163,40 @@ predioRutas.post("/eliminar/:codigo", authPrediosMid, function (req, res) {
     })
 })
 
-
+// Consultar predios por Documento del Propietario:
 predioRutas.get("/consultar/:doc_prop", function (req, res) {
-    // Captura el codigo del predio a buscar
     const i = req.params.doc_prop;
-    // Busca el producto en la BD
     predioModel.find({ doc_prop: i }, (error, predio) => {
         // Si hubo error
         if (error) {
             console.log("Error consultando predios: " + error)
-            res.send({ estado: "error", msg: "Predios NO encontrados" })
-            return false;
+            return res.send({ estado: "error", msg: "Predios NO encontrados", data: [] })
         } else {
             if (predio !== null) {
-                res.send({ estado: "ok", msg: "Predios Encontrados", data: predio })
+                return res.send({ estado: "ok", msg: "Predios Encontrados", data: predio })
             } else {
-                res.send({ estado: "error", msg: "Predios NO encontrados" })
+                return res.send({ estado: "error", msg: "Predios NO encontrados" })
             }
         }
     })
 });
 
+// Consultar predio pór Código del Predio:
 predioRutas.get("/consultar-uno/:codigo", function (req, res) {
-    // Captura el codigo del predio a buscar
     const i = req.params.codigo;
-    // Busca el producto en la BD
     predioModel.findOne({ codigo: i }, (error, predio) => {
         // Si hubo error
         if (error) {
             console.log("Error consultando predio: " + error)
-            res.send({ estado: "error", msg: "Predio NO encontrado" })
-            return false;
+            return res.send({ estado: "error", msg: "Predio NO encontrado" })
         } else {
             if (predio !== null) {
-                res.send({ estado: "ok", msg: "Predio Encontrado", data: predio })
+                return res.send({ estado: "ok", msg: "Predio Encontrado", data: predio })
             } else {
-                res.send({ estado: "error", msg: "Predio NO encontrado" })
+                return res.send({ estado: "error", msg: "Predio NO encontrado", data: {} })
             }
         }
     })
 });
-
-// predioRutas.get("/consultar/:doc", function (req, res) {
-//     const i = req.params.doc;
-//     // Busca el producto en la BD
-//     predioModel.find({doc_prop:i,asociado:1}, function (error, predio) {
-//         // Si hubo error
-//         if (error) {
-//             res.send({ estado: "error", msg: "Predios NO encontrado" })
-//             return false;
-//         } else {
-//             if (predio !== null) {
-//                 res.send({ estado: "ok", msg: "Predios Visualizados", data: predio })
-//             } else {
-//                 res.send({ estado: "error", msg: "Predios NO encontrado" })
-//             }
-//         }
-//     })
-// })
-
-// predioRutas.get("/asociar/:predio", function (req, res) {
-//     const i = req.params.predio;
-//     // Busca el producto en la BD
-//     predioModel.updateOne({codigo:i},{asociado:0}, function (error, predio) {
-//         // Si hubo error
-//         if (error) {
-//             res.send({ estado: "error", msg: "Predios NO Asociado" })
-//             return false;
-//         } else {
-//             if (predio !== null) {
-//                 res.send({ estado: "ok", msg: "Predios Asociado correctamente"})
-//             } else {
-//                 res.send({ estado: "error", msg: "Predios NO encontrado" })
-//             }
-//         }
-//     })
-// })
 
 exports.predioRutas = predioRutas;

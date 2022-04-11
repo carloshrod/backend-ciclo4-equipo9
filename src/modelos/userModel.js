@@ -1,65 +1,65 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
-const { genSalt, hash} = require('bcryptjs');
+const { genSalt, hash } = require('bcryptjs');
 
 const userSchema = new Schema({
-    nombres:{
-        type: "string",
+    nombres: {
+        type: String,
         required: true
     },
-    apellidos:{
-        type: "string",
+    apellidos: {
+        type: String,
         required: true
     },
-    tipo_doc:{
-        type: "string",
+    tipo_doc: {
+        type: String,
         required: true
     },
-    nro_doc:{
-        type: "number",
-        required: true,
-        unique: true,
-    },
-    email:{
-        type:"string",
+    nro_doc: {
+        type: Number,
         required: true,
         unique: true
     },
-    password:{
-        type:"string",
+    email: {
+        type: String,
+        required: true,
+        unique: true
+    },
+    password: {
+        type: String,
         required: true
     },
-    telefono:{
-        type:"string",
+    telefono: {
+        type: String,
         required: true
     },
-    direccion:{
-        type:"string",
+    direccion: {
+        type: String,
         required: true
     },
-    rol:{
-        type:"number",
+    rol: {
+        type: Number,
     },
-    estado:{
-        type:"number",
+    estado: {
+        type: Number,
     },
-    imgUrl:{
-        type:"string",
+    imgUrl: {
+        type: String,
     },
-    reset_token:{
-        type:"string",
+    reset_token: {
+        type: String,
     },
-    expire_token:{
-        type:"date",
+    expire_token: {
+        type: Date
     },
-    created_predios:{
-        type:"number"
+    created_predios: {
+        type: Number
     },
-    edited_predios:{
-        type:"number"
+    edited_predios: {
+        type: Number
     },
-    deleted_predios:{
-        type:"number"
+    deleted_predios: {
+        type: Number
     }
 });
 
@@ -67,11 +67,11 @@ userSchema.methods.setImgUrl = function setImgUrl(filename) {
     this.imgUrl = `${process.env.HOST}${process.env.PORT}/${filename}`
 }
 
-userSchema.pre("save", async function(next){
+userSchema.pre("save", async function (next) {
     const salt = await genSalt(10);
     this.password = await hash(this.password, salt);
     next();
 })
 
-const userModel = mongoose.model("users",userSchema);
+const userModel = mongoose.model("users", userSchema);
 exports.userModel = userModel;

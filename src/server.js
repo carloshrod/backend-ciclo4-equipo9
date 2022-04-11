@@ -7,7 +7,7 @@ const { predioRutas } = require('./rutas/predioRutas');
 require("dotenv").config();
 const path = require("path");
 
-//Middlewares
+//Middlewares:
 app.use(cors()); //Middleware cors
 app.use(express.json()); //Middleware json()
 app.use(express.urlencoded({ extended: false }));
@@ -15,16 +15,15 @@ app.use(express.urlencoded({ extended: false }));
 // APIs:
 app.use("/users", userRutas);
 app.use("/predios", predioRutas);
-// app.use("/public", express.static(`${__dirname}/src/storage/imgs`))
 app.use(express.static(path.join(__dirname,"/storage/imgs")))
 
+// Connection to database:
 mongoose.connect(process.env.SERVER_DB_URL)
-    .then(() => console.log("Conectado a BD"))
+    .then(() => console.log("Connected to database!!!"))
     .catch((error) => {
-        console.log("Falló la conexión a la base de datos");
+        console.log("Connection failed!!!");
         console.log(error);
     });
-
 
 app.listen(process.env.PORT, function () {
     console.log(`Server listening on port ${process.env.PORT}...`);
