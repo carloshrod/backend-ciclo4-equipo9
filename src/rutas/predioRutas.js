@@ -5,6 +5,8 @@ const { predioModel } = require('../modelos/predioModel');
 const { userModel } = require('../modelos/userModel');
 const { historialModel } = require('../modelos/historialModel');
 const { verify } = require("jsonwebtoken");
+const { transporter } = require('../tools/mailer');
+const { newPredioOptions } = require('../tools/emailOptions');
 
 // Listar predios:
 predioRutas.get("/listar", function (req, res) {
@@ -41,6 +43,8 @@ predioRutas.get("/historial", function (req, res) {
 // Guardar predios:
 predioRutas.post("/guardar", authPrediosMid, function (req, res) {
     const data = req.body;
+    console.log(req.body)
+    const { email_prop, nom_prop, codigo, doc_prop } = req.body
     const predio = new predioModel(data)
     const token = req.headers.authorization.split(' ')[1]
     const payload = verify(token, process.env.JWT_SECRET_KEY)
@@ -48,32 +52,36 @@ predioRutas.post("/guardar", authPrediosMid, function (req, res) {
         if (error) {
             console.log("Error creando predio: " + error)
             return res.send({ estado: "error", msg: "ERROR: El predio no pudo ser creado!!!" })
-        } else {
-            userModel.findOne({ nro_doc: payload.nro_doc })
-                .then((user) => {
-                    const historial = new historialModel()
-                    historial.author = user.nombres
-                    historial.action = "creó"
-                    historial.fecha = Date.now()
-                    historial.code = data.codigo
-                    historial.save((error) => {
-                        if (error) {
-                            console.log("Error guardando historial: " + error)
-                        }
-                    })
-                    user.created_predios += 1
-                    user.updateOne({
-                        $set: {
-                            created_predios: user.created_predios
-                        }
-                    }, (error) => {
-                        if (error) {
-                            console.log("Error actualizando created_predios: " + error)
-                        }
-                        return res.status(200).send({ estado: "ok", msg: "El predio fue creado exitosamente!!!", data1: predio, data2: user, data3: historial })
-                    })
-                })
         }
+        try {
+            transporter.sendMail(newPredioOptions(email_prop, nom_prop, codigo, doc_prop))
+        } catch (error) {
+            console.log("Error enviando email: " + error)
+        }
+        userModel.findOne({ nro_doc: payload.nro_doc })
+            .then((user) => {
+                const historial = new historialModel()
+                historial.author = user.nombres
+                historial.action = "creó"
+                historial.fecha = Date.now()
+                historial.code = data.codigo
+                historial.save((error) => {
+                    if (error) {
+                        console.log("Error guardando historial: " + error)
+                    }
+                })
+                user.created_predios += 1
+                user.updateOne({
+                    $set: {
+                        created_predios: user.created_predios
+                    }
+                }, (error) => {
+                    if (error) {
+                        console.log("Error actualizando created_predios: " + error)
+                    }
+                    return res.status(200).send({ estado: "ok", msg: "El predio fue creado exitosamente!!!", data1: predio, data2: user, data3: historial })
+                })
+            })
     })
 });
 

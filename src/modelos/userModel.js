@@ -39,12 +39,23 @@ const userSchema = new Schema({
     },
     rol: {
         type: Number,
+        required: true
     },
     estado: {
         type: Number,
+        required: true
     },
     imgUrl: {
         type: String,
+    },
+    created_predios: {
+        type: Number,
+    },
+    edited_predios: {
+        type: Number,
+    },
+    deleted_predios: {
+        type: Number,
     },
     reset_token: {
         type: String,
@@ -52,15 +63,6 @@ const userSchema = new Schema({
     expire_token: {
         type: Date
     },
-    created_predios: {
-        type: Number
-    },
-    edited_predios: {
-        type: Number
-    },
-    deleted_predios: {
-        type: Number
-    }
 });
 
 userSchema.methods.setImgUrl = function setImgUrl(filename) {

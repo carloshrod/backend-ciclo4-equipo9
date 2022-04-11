@@ -63,6 +63,7 @@ userRutas.get("/listar", function (req, res) {
 // Guardar usuarios:
 userRutas.post("/guardar", upload.single("avatar"), authMid, async function (req, res) {
     const data = req.body;
+    console.log(data)
     const { email, nombres, password } = req.body;
     const user = await new userModel(data);
     if (req.file) {
@@ -76,10 +77,10 @@ userRutas.post("/guardar", upload.single("avatar"), authMid, async function (req
         }
         try {
             transporter.sendMail(newUserOptions(email, nombres, password))
-            return res.status(200).send({ estado: "ok", msg: "El usuario fue creado exitosamente!!!", user: user })
         } catch (error) {
-            return res.send({ estado: "error", msg: "ERROR: Ingrese un correo válido!!!" });
+            console.log("Error enviando email: " + error)
         }
+        return res.status(200).send({ estado: "ok", msg: "El usuario fue creado exitosamente!!!", user: user })
     })
 });
 
@@ -207,7 +208,7 @@ userRutas.post("/reset-password", async function (req, res) {
                         transporter.sendMail(resetPasswordOptions(toEmail, name, resetToken))
                     } catch (error) {
                         console.log("Error enviando email: " + error)
-                    }                  
+                    }
                 })
                 return res.status(200).json({ estado: "ok", msg: "Por favor, revise su correo!!!" })
             })

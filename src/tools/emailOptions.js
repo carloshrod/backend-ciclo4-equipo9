@@ -25,6 +25,20 @@ export function newUserOptions(toEmail, name, password) {
     };
 }
 
+export function newPredioOptions(toEmail, name, codigo, documento) {
+    return {
+        from: `NO-REPLY <${USER_MAIL_SERVER}>`, // sender address
+        to: toEmail, // list of receivers
+        subject: "PREDIO CREADO ✔", // Subject line
+        html: `<p>Sr(a). <b>${name}</b>,</p>
+
+        <p>Se ha creado un predio con código <b>${codigo}</b> asociado a su número de documento <b>${documento}</b>, por lo tanto
+        ya puede ingresar a la <b>Plataforma de Gestión Catastral</b> para asociar dicho predio a su cuenta y así poder
+        realizar el pago del <b>Impuesto Predial</b>.</p>               
+        `
+    };
+}
+
 export function resetPasswordOptions(toEmail, name, resetToken) {
     return {
         from: `NO-REPLY <${USER_MAIL_SERVER}>`, // sender address
